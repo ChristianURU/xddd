@@ -1,0 +1,1753 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>HomicidiosUY | Mapa de Crímenes y Seguridad en Uruguay</title>
+
+    <!-- SEO & Search Optimization -->
+    <meta name="description"
+        content="Mapa interactivo actualizado en tiempo real de homicidios, inseguridad y delitos en Uruguay. Datos 2025-2026, estadísticas por barrio, monitor de seguridad ciudadana y zonas rojas de Montevideo.">
+    <meta name="keywords"
+        content="Homicidios Uruguay, Mapa del Delito, Inseguridad Montevideo, Policiales, Crimen, Zonas Rojas, Estadísticas Seguridad, Ministerio del Interior, Rapiñas, Noticias Uruguay">
+    <meta name="author" content="HomicidiosUY">
+    <meta name="robots" content="index, follow">
+
+    <!-- Social Media / Open Graph (WhatsApp, Facebook) -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://homicidiosuy.com/">
+    <meta property="og:title" content="🔴 Mapa de Homicidios Uruguay - Datos en Tiempo Real">
+    <meta property="og:description"
+        content="Visualiza todos los incidentes geolocalizados en el mapa. Estadísticas, zonas críticas y reportes ciudadanos actualizados 2026.">
+    <meta property="og:image" content="https://homicidiosuy.com/logo_final.jpg">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Mapa de Homicidios Uruguay 2026">
+    <meta name="twitter:description"
+        content="Monitor de seguridad ciudadana. Mira el mapa interactivo con los últimos hechos.">
+    <meta name="twitter:image" content="https://homicidiosuy.com/logo_final.jpg">
+    <link rel="icon" type="image/png" href="https://homicidiosuy.com/logo_final.jpg">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="logo_final.jpg">
+    <meta name="theme-color" content="#f5f7fa">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- ANTI-CACHE META TAGS -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <!-- Leaflet MarkerCluster CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet"
+        crossorigin="anonymous">
+    <!-- CSS con versionado para forzar recarga -->
+    <link rel="stylesheet" href="style.css?v=130">
+    <link rel="stylesheet" href="donation-animations.css?v=5">
+    <link rel="stylesheet" href="mobile-feed.css?v=45">
+    <link rel="stylesheet" href="category-filter.css?v=5">
+
+    <!-- APK Detection Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check if running in a Capacitor/Native environment
+            const isNative = window.Capacitor && window.Capacitor.platform !== 'web';
+            if (isNative) {
+                document.body.classList.add('is-apk');
+                console.log("✈️ APK Mode Active");
+            }
+        });
+    </script>
+</head>
+
+<body>
+    <!-- X-INTERFACE OVERLAY -->
+    <style>
+        /* X-INTERFACE STYLES (Temporary Inline) */
+        body {
+            background: #000;
+            color: #e7e9ea;
+            font-family: 'Outfit', sans-serif;
+            overflow: hidden;
+        }
+
+        #x-main-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 5000;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid #2f3336;
+        }
+
+        .x-top-tabs {
+            display: flex;
+            height: 53px;
+        }
+
+        .x-tab {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.2s;
+            flex-direction: column;
+        }
+
+        .x-tab:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .x-tab span {
+            font-weight: 500;
+            font-size: 0.95rem;
+            color: #71767b;
+            padding: 14px 0;
+        }
+
+        .x-tab.active span {
+            color: #e7e9ea;
+            font-weight: 700;
+        }
+
+        .tab-indicator {
+            position: absolute;
+            bottom: 0;
+            width: 56px;
+            height: 4px;
+            background: #1d9bf0;
+            border-radius: 2px;
+            display: none;
+        }
+
+        .x-tab.active .tab-indicator {
+            display: block;
+        }
+
+        /* VIEWS */
+        .x-view {
+            display: none;
+            padding-top: 54px;
+            padding-bottom: 65px;
+            /* Space for bars */
+            height: 100vh;
+            overflow-y: auto;
+            background: #000;
+            box-sizing: border-box;
+        }
+
+        .x-view.active {
+            display: block;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            display: none;
+            /* Controlled by JS */
+        }
+
+        #map.active {
+            display: block;
+        }
+
+        /* SEARCH & FEED */
+        .x-search-container {
+            padding: 10px 15px;
+            border-bottom: 1px solid #2f3336;
+        }
+
+        #topic-search-input {
+            width: 100%;
+            background: #202327;
+            border: 1px solid transparent;
+            border-radius: 20px;
+            padding: 8px 15px;
+            color: #e7e9ea;
+            outline: none;
+        }
+
+        #topic-search-input:focus {
+            background: #000;
+            border-color: #1d9bf0;
+        }
+
+        /* FAB */
+        .x-fab {
+            position: fixed;
+            bottom: 85px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #1d9bf0;
+            color: white;
+            border: none;
+            box-shadow: 0 4px 10px rgba(29, 155, 240, 0.3);
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 6000;
+        }
+
+        /* HIDE OLD ELEMENTS */
+        #dashboard-open-btn,
+        #community-open-btn {
+            display: none !important;
+        }
+
+        /* ADJUST FEED CARDS to match X style */
+        .topic-card {
+            background: transparent !important;
+            border: none !important;
+            border-bottom: 1px solid #2f3336 !important;
+            margin: 0 !important;
+            border-radius: 0 !important;
+            padding: 15px !important;
+            box-shadow: none !important;
+        }
+
+        .topic-header {
+            display: flex;
+            gap: 10px;
+        }
+
+        .topic-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #333;
+        }
+
+        .topic-content {
+            color: #e7e9ea;
+            margin-top: 5px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .topic-meta {
+            color: #71767b;
+            font-size: 0.9rem;
+            display: flex;
+            gap: 5px;
+        }
+
+        .topic-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            max-width: 80%;
+            color: #71767b;
+        }
+    </style>
+
+    <script>
+        window.currentXTab = 'reportes';
+        window.switchXTab = function (tab) {
+            window.currentXTab = tab;
+
+            // Update Tabs UI
+            document.querySelectorAll('.x-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+
+            // Update Views
+            if (tab === 'reportes') {
+                document.getElementById('view-reportes').style.display = 'block';
+                document.getElementById('map').style.display = 'none'; // Hide Map
+                document.getElementById('map').classList.remove('active');
+
+                // Show FAB
+                const fab = document.querySelector('.x-fab');
+                if (fab) fab.style.display = 'flex';
+            } else {
+                document.getElementById('view-reportes').style.display = 'none';
+                document.getElementById('map').style.display = 'block'; // Show Map
+                document.getElementById('map').classList.add('active');
+
+                // Force resize map just in case
+                if (window.map) setTimeout(() => window.map.invalidateSize(), 100);
+
+                // Hide FAB on map (Optional, but cleaner)
+                const fab = document.querySelector('.x-fab');
+                if (fab) fab.style.display = 'none';
+            }
+        }
+
+        // Initial Load
+        document.addEventListener('DOMContentLoaded', () => {
+            window.switchXTab('reportes');
+        });
+    </script>
+
+    <!-- HEADER -->
+    <header id="x-main-header">
+        <nav class="x-top-tabs">
+            <div class="x-tab active" onclick="window.switchXTab('reportes')" id="tab-reportes">
+                <span>REPORTES</span> <!-- "Para ti" -->
+                <div class="tab-indicator"></div>
+            </div>
+            <div class="x-tab" onclick="window.switchXTab('mapa')" id="tab-mapa">
+                <span>MAPA</span> <!-- "Siguiendo" -->
+                <div class="tab-indicator"></div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- VIEW: REPORTES -->
+    <div id="view-reportes" class="x-view active">
+        <!-- Search -->
+        <div class="x-search-container">
+            <input type="text" id="topic-search-input" placeholder="Buscar reportes..."
+                oninput="window.filterTopics(this.value)">
+        </div>
+
+        <!-- Feed List (Reusing ID) -->
+        <div id="topics-list" class="x-feed-list">
+            <div style="padding:40px; text-align:center; color:#71767b;">
+                <p>Cargando feed...</p>
+            </div>
+        </div>
+
+        <!-- FAB -->
+        <button class="x-fab" onclick="openNewTopicModal()">+</button>
+    </div>
+
+    <!-- MAP CONTAINER -->
+    <div id="map"></div>
+
+
+    <!-- Dashboard Open Button (Visible when collapsed) -->
+    <button id="dashboard-open-btn" onclick="toggleDashboard()"
+        style="position:fixed; left:20px; top:50%; transform:translateY(-50%); z-index:998; background:#1e293b; color:white; border:none; width:40px; height:60px; border-radius:0 12px 12px 0; cursor:pointer; display:none; box-shadow:4px 0 15px rgba(0,0,0,0.2); align-items:center; justify-content:center; font-size:1.2rem; transition:left 0.3s ease;">
+        ▶
+    </button>
+
+    <!-- Dashboard Panel (Left Side) -->
+    <div id="dashboard-panel" class="glass-panel dashboard-panel">
+        <div class="dashboard-header">
+            <h3 style="margin:0; font-size:1.1rem; color:#fff; display:flex; align-items:center; gap:8px;">
+                <span>📊</span>
+                <span class="dashboard-title">Estadísticas HomicidiosUY</span>
+            </h3>
+            <button onclick="toggleDashboard()" class="dashboard-toggle-btn">
+                ◀
+            </button>
+        </div>
+
+        <div class="dashboard-content" id="dashboard-content">
+
+            <!-- Widget: Year Selector -->
+            <div class="dashboard-widget">
+                <h4 class="widget-title">📅 Año de Visualización</h4>
+                <div class="year-selector-container">
+                    <button onclick="changeYear('all')" id="btn-all" class="year-option-btn">Todos</button>
+                    <button onclick="changeYear('2026')" id="btn-2026" class="year-option-btn active">2026</button>
+                    <button onclick="changeYear('2025')" id="btn-2025" class="year-option-btn">2025</button>
+                </div>
+            </div>
+
+            <!-- Widget: Theme Toggle -->
+            <div class="dashboard-widget">
+                <button onclick="toggleTheme()" id="theme-toggle-btn" style="width:100%;">
+                    <span id="theme-icon">☀️</span>
+                    <span id="theme-text">Claro</span>
+                </button>
+            </div>
+
+
+            <!-- Widget: Recent Cases Feed (ID Corrected) -->
+            <div class="dashboard-widget">
+                <h4 class="widget-title">🚨 Últimos Casos</h4>
+                <div id="recent-cases-list" class="recent-cases-container">
+                    <!-- JS Populates this -->
+                </div>
+            </div>
+
+            <!-- Widget: Trend Chart -->
+            <div class="dashboard-widget" id="trend-chart-panel">
+                <h4 class="widget-title">📈 Tendencia de Casos (Últimos 365 días)</h4>
+                <div class="trend-chart-container" style="position: relative; height:150px; width:100%;">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Widget: Top 5 Departamentos -->
+            <div class="dashboard-widget">
+                <h4 class="widget-title">🏆 Top 5 Departamentos</h4>
+                <div style="position: relative; height:150px; width:100%;">
+                    <canvas id="topDeptsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Widget: Age Distribution -->
+            <div class="dashboard-widget">
+                <h4 class="widget-title">🎂 Distribución por Edad</h4>
+                <div style="position: relative; height:150px; width:100%;">
+                    <canvas id="ageChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Widget: WeekDay Distribution -->
+            <div class="dashboard-widget">
+                <h4 class="widget-title">📅 Días de la Semana</h4>
+                <div style="position: relative; height:150px; width:100%;">
+                    <canvas id="weekDayChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Widget: Weapon Distribution -->
+            <div class="dashboard-widget">
+                <h4 class="widget-title">🔫 Tipo de Arma</h4>
+                <div style="position: relative; height:150px; width:100%;">
+                    <canvas id="weaponChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Widget: Gender Distribution -->
+            <div class="dashboard-widget">
+                <h4 class="widget-title">👥 Por Género</h4>
+                <div style="position: relative; height:150px; width:100%;">
+                    <canvas id="genderChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Widget: Quick Stats (Moved to Bottom) -->
+            <div class="dashboard-widget">
+                <h4 class="widget-title">⚡ Estadísticas Rápidas</h4>
+                <div class="quick-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Total Casos:</span>
+                        <span class="stat-value" id="dash-total">-</span>
+                    </div>
+
+
+                    <div class="stat-item">
+                        <span class="stat-label">Promedio mensual (12 meses):</span>
+                        <span class="stat-value" id="dash-avg">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Día más violento:</span>
+                        <span class="stat-value" id="dash-top-day">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Zona Más Crítica:</span>
+                        <span class="stat-value" id="dash-critical">-</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Community Open Button (Right Side) -->
+    <button id="community-open-btn" onclick="toggleCommunity()"
+        style="position:fixed; right:0; top:50%; transform:translateY(-50%); z-index:998; background:#1e293b; color:white; border:none; width:40px; height:60px; border-radius:12px 0 0 12px; cursor:pointer; display:flex; box-shadow:-4px 0 15px rgba(0,0,0,0.2); align-items:center; justify-content:center; font-size:1.2rem; transition:right 0.3s ease;">
+        💬
+    </button>
+
+    <!-- Community Panel (Right Side) -->
+    <div id="community-panel" class="glass-panel community-panel">
+        <div class="dashboard-header">
+            <button onclick="toggleCommunity()" class="dashboard-toggle-btn">
+                ▶
+            </button>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; width:100%; gap:10px;">
+                <h3 style="margin:0; font-size:0.9rem; color:#fff; display:flex; align-items:center; gap:5px;">
+                    <span style="color:#ff4757;">●</span> Comunidad
+                </h3>
+                <div style="display:flex; gap:4px;">
+                    <button onclick="window.open('https://homicidiosuy.com/ayuda', '_blank')"
+                        class="btn-community-stats"
+                        style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#94a3b8;">
+                        Ayuda
+                    </button>
+                    <!-- PIXEL WAR BUTTON -->
+                    <button onclick="togglePixelWar(true)" class="btn-community-stats"
+                        style="background:rgba(255,71,87,0.15); border:1px solid #ff4757; color:#ff4757; font-weight:bold;">
+                        JUEGA
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-content" id="community-content">
+            <!-- Auth State: GUEST -->
+            <div class="dashboard-widget" id="community-guest" style="text-align:center;">
+                <h4 class="widget-title" style="justify-content:center;">¡Únete al debate!</h4>
+                <p style="font-size:0.9rem; color:#ddd; margin-bottom:15px;">Regístrate para reportar y opinar. Tu
+                    identidad será anónima ante el público.</p>
+                <button onclick="loginWithGoogle()" id="btn-community-login"
+                    style="width:100%; background:#ff4757; color:white; border:none; padding:10px; border-radius:8px; font-weight:bold; cursor:pointer; margin-bottom:10px; display:flex; align-items:center; justify-content:center; gap:10px;">
+                    <span>🔵</span> Iniciar con Google
+                </button>
+            </div>
+
+            <!-- Auth State: SETUP ALIAS (Hidden) -->
+            <div class="dashboard-widget" id="community-setup" style="display:none; text-align:center;">
+                <h4 class="widget-title" style="justify-content:center;">🕵️ Crea tu Identidad</h4>
+                <p style="font-size:0.85rem; color:#aaa; margin-bottom:10px;">Elige un apodo para interactuar. Nadie
+                    verá tu nombre real de Google.</p>
+                <input type="text" id="input-alias" placeholder="Ej: Vigilante" maxlength="8"
+                    style="width:100%; box-sizing:border-box; padding:10px; background:rgba(0,0,0,0.3); border:1px solid #444; color:white; border-radius:6px; margin-bottom:10px;">
+                <button onclick="saveUserAlias()"
+                    style="width:100%; background:#2ecc71; color:white; border:none; padding:10px; border-radius:8px; font-weight:bold; cursor:pointer;">
+                    Confirmar Alias
+                </button>
+            </div>
+
+            <!-- Auth State: LOGGED IN (Hidden) -->
+            <div class="dashboard-widget" id="community-user" style="display:none; margin-top:2px !important;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <div
+                            style="width:24px; height:24px; background:#ff4757; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; color:white; overflow:hidden; position:relative;">
+                            <span id="user-avatar-initial" style="font-size:0.7rem;">?</span>
+                            <img id="user-mini-avatar" src=""
+                                style="width:100%; height:100%; object-fit:cover; display:none; position:absolute; top:0; left:0;">
+                        </div>
+                        <div id="user-display-alias" style="font-weight:bold; font-size:0.85rem;">-</div>
+                    </div>
+                    <div style="display:flex; gap:3px;">
+                        <button onclick="openDonationModal()" class="btn-community-stats"
+                            style="background:linear-gradient(135deg, #ff4757, #ff6b81); border:none; color:#fff; font-weight:bold; height:22px !important; padding:0 10px; border-radius:12px; box-shadow:0 0 8px rgba(255,71,87,0.5); font-size:0.65rem; display:flex; align-items:center; gap:4px; text-shadow:0 1px 2px rgba(0,0,0,0.2);">
+                            <span>❤️</span> DONACIONES
+                        </button>
+                        <button onclick="openMyProfile()" class="btn-community-stats"
+                            style="background:rgba(255,165,2,0.1); border:1px solid #ffa502; color:#ffa502; font-weight:bold; height:20px !important;">Perfil</button>
+                        <button onclick="logout()" class="btn-community-stats"
+                            style="background:transparent; border:1px solid #444; color:#888; height:20px !important;">Salir</button>
+                    </div>
+                </div>
+
+
+
+                <!-- ENERGY BAR SYSTEM -->
+                <div style="margin-top: 5px;">
+                    <div
+                        style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #cbd5e1; margin-bottom: 2px;">
+                        <span style="display:flex; align-items:center; gap:5px;">
+                            Energía
+                            <a href="https://homicidiosuy.com/ayuda" target="_blank" title="¿Cómo funciona?"
+                                style="color:#94a3b8; font-size:0.7rem; text-decoration:none; border:1px solid #444; width:14px; height:14px; display:inline-flex; align-items:center; justify-content:center; border-radius:50%;">?</a>
+                        </span>
+                        <span><span id="user-energy-text">0</span>/100 ⚡</span>
+                    </div>
+                    <div class="energy-container" title="Usa 50 pts para confirmar alertas">
+                        <div id="user-energy-bar" class="energy-fill low" style="width: 0%;"></div>
+                    </div>
+                </div>
+
+                <!-- DESKTOP ONLY ACTIONS (Hidden on mobile via CSS if needed, but safer here) -->
+                <div class="desktop-only-actions"
+                    style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+                    <button onclick="openNewTopicModal()" id="btn-new-topic-pc"
+                        style="width: 100%; height: 42px; background: linear-gradient(135deg, #ff4757, #ff6b81); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(255, 71, 87, 0.2);">
+                        <span>📝</span> Reportar Nuevo Tema
+                    </button>
+
+                    <button onclick="openStatsModal()" class="pc-stats-btn"
+                        style="width: 100%; height: 36px; background: rgba(225, 177, 44, 0.1); border: 1px solid rgba(225, 177, 44, 0.3); color: #e1b12c; border-radius: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.85rem;">
+                        <span>🏆</span> Ver Estadísticas (Ranking)
+                    </button>
+                </div>
+            </div>
+
+            <!-- MODAL: TOPIC DETAIL (Hidden Overlay) -->
+            <div id="topic-detail-modal"
+                style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:2050; align-items:center; justify-content:center; padding:10px; box-sizing:border-box;">
+                <div class="topic-detail-inner"
+                    style="width:92%; max-width:500px; height:90%; max-height:800px; border-radius:12px; display:flex; flex-direction:column; position:relative; box-sizing:border-box;">
+
+                    <!-- Header -->
+                    <div class="topic-detail-header"
+                        style="padding:15px; display:flex; justify-content:space-between; align-items:center;">
+                        <h3 id="detail-title"
+                            style="color:white; margin:0; font-size:1.1rem; word-break: break-word; overflow-wrap: anywhere; flex:1;">
+                            Título del Tema</h3>
+                            <button onclick="window.shareTopicDetail()" id="share-topic-btn" title="Copiar Enlace" style="background:transparent; border:1px solid rgba(255,255,255,0.2); color:white; padding:5px 10px; border-radius:15px; cursor:pointer; font-size:0.8rem; display:flex; align-items:center; transition:all 0.2s; margin-right: 15px;">
+                                🔗 
+                            </button>
+                        <button onclick="closeTopicDetail()"
+                            style="background:none; border:none; color:#888; font-size:1.5rem; cursor:pointer;">&times;</button>
+                    </div>
+
+                    <!-- Scrollable Content -->
+                    <div style="flex:1; overflow-y:auto; padding:15px;" id="detail-scroll-area">
+                        <!-- Original Post -->
+                        <div class="topic-detail-header" style="margin-bottom:20px; padding-bottom:15px;">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <div style="width:30px; height:30px; background:#555; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-weight:bold;"
+                                        id="detail-avatar">?</div>
+                                    <div>
+                                        <div style="font-size:0.9rem; color:white; font-weight:bold;"
+                                            id="detail-author">Autor</div>
+                                        <div style="font-size:0.75rem; color:#888;" id="detail-date">Fecha</div>
+                                    </div>
+                                </div>
+                                <span id="detail-category"
+                                    style="font-size:0.7rem; background:#444; color:white; padding:2px 8px; border-radius:4px; height:fit-content;">CAT</span>
+                            </div>
+                            <p id="detail-content" style="color:#ddd; line-height:1.5; white-space:pre-wrap;">
+                                Contenido...</p>
+                            <div id="detail-photo-container" style="display:none;"></div>
+                            <div id="detail-source-container" style="display:none;"></div>
+
+                            <!-- Topic Reactions -->
+                            <div id="detail-reactions" style="margin-top:15px; display:flex; gap:5px;">
+                                <!-- JS Injected -->
+                            </div>
+                        </div>
+
+                        <!-- Comments Section -->
+                        <h4 style="color:#aaa; font-size:0.9rem; margin-bottom:10px;">Respuestas (<span
+                                id="comments-count">0</span>)</h4>
+                        <div id="comments-list">
+                            <!-- JS Populates this -->
+                        </div>
+                    </div>
+
+                    <!-- Reply Input -->
+                    <div class="topic-detail-footer"
+                        style="padding:10px 15px; border-bottom-left-radius:12px; border-bottom-right-radius:12px; box-sizing:border-box;">
+
+                        <!-- Community Validation Zone (Only for alerts/denuncias) -->
+                        <div id="alert-validation-zone"
+                            style="display:none; margin-bottom:8px; padding:6px 10px; background:linear-gradient(135deg, rgba(255,165,2,0.15), rgba(255,165,2,0.05)); border:1px solid rgba(255,165,2,0.3); border-radius:10px; backdrop-filter:blur(10px);">
+                            <div
+                                style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+                                <div style="display:flex; align-items:center; gap:4px;">
+                                    <span style="font-size:1rem;">⏱️</span>
+                                    <span style="font-size:0.7rem; color:#ffa502; font-weight:700;">¿SIGUE
+                                        VIGENTE?</span>
+                                </div>
+                                <span id="confirmers-count"
+                                    style="font-size:0.6rem; color:#94a3b8; background:rgba(0,0,0,0.3); padding:2px 6px; border-radius:10px;">0
+                                    confirmaciones</span>
+                            </div>
+                            <button id="btn-extend-alert" onclick="window.extendAlertTime()"
+                                style="width:100%; padding:6px; background:linear-gradient(135deg, #ffa502, #ff8c00); color:#000; border:none; border-radius:8px; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px; transition:all 0.2s; box-shadow:0 2px 8px rgba(255,165,2,0.2); font-size:0.8rem; height:32px;">
+                                <span>🔔</span> <span id="btn-extend-text">Confirmar Vigencia (+1h)</span>
+                            </button>
+                        </div>
+
+                        <div style="display:flex; gap:10px;">
+                            <textarea id="reply-input" placeholder="Escribe una respuesta..." maxlength="500" rows="1"
+                                onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); submitReply(); }"
+                                style="flex:1; padding:10px; background:#111; border:1px solid #444; color:white; border-radius:20px; outline:none; resize:none; overflow-y:hidden; font-family:inherit; min-height:42px; line-height:1.4;"></textarea>
+                            <button onclick="submitReply()"
+                                style="background:#ff4757; color:white; border:none; width:40px; height:40px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center;">
+                                ➤
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Topics List moved to Main View -->
+            <!-- Widget preserved in comment for reference -->
+
+            <!-- Trending Widget -->
+            <div class="dashboard-widget" id="trending-widget"
+                style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); margin-top: 10px; padding: 10px; border-radius: 12px;">
+                <h4 class="widget-title"
+                    style="border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 6px; margin-bottom: 5px; font-size: 0.9rem;">
+                    🔥 ¿Qué está pasando?</h4>
+                <div id="trending-hashtags-list" style="display:flex; flex-direction:column; color:#e2e8f0; font-size: 0.8rem; gap: 4px;">
+                    <p style="text-align:center; color:#888; padding:5px;">Cargando tendencias...</p>
+                </div>
+            </div>
+
+            <!-- Recent Users Widget -->
+            <div class="dashboard-widget"
+                style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); margin-top: 10px; padding: 10px; border-radius: 12px;">
+                <h4 class="widget-title"
+                    style="border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 6px; margin-bottom: 5px; font-size: 0.9rem;">
+                    👥 Usuarios Recientes</h4>
+                <div id="recent-users-list" style="display:flex; flex-direction:column; font-size: 0.8rem; gap: 4px;">
+                    <p style="text-align:center; color:#888; padding:5px;">Cargando...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: USER PROFILE -->
+    <div id="user-profile-modal"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:4000; align-items:center; justify-content:center; padding:10px; box-sizing:border-box;">
+        <div class="glass-panel"
+            style="width:95%; max-width:550px; max-height:90vh; border-radius:15px; display:flex; flex-direction:column; overflow:hidden;">
+
+            <div id="prof-header"
+                style="background:linear-gradient(135deg, #1e293b, #0f172a); padding:30px 20px; text-align:center; position:relative; background-size:cover; background-position:50% 50%; background-repeat:no-repeat;">
+
+                <!-- Background Editor Controls -->
+                <button id="btn-edit-bg" onclick="openBgEditor()"
+                    style="display:none; position:absolute; top:10px; left:15px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.2); color:white; border-radius:4px; padding:5px 10px; font-size:0.75rem; cursor:pointer; z-index:10;">
+                    📐 Ajustar Fondo
+                </button>
+
+                <div id="prof-bg-controls"
+                    style="display:none; position:absolute; bottom:10px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.85); padding:8px 12px; border-radius:30px; gap:10px; align-items:center; z-index:11; backdrop-filter:blur(5px); border:1px solid rgba(255,255,255,0.1); width:max-content;">
+                    <button onclick="moveBg(-5, 0)"
+                        style="background:none; border:none; color:white; cursor:pointer; font-size:1.1rem;">⬅️</button>
+                    <button onclick="moveBg(0, -5)"
+                        style="background:none; border:none; color:white; cursor:pointer; font-size:1.1rem;">⬆️</button>
+                    <button onclick="moveBg(0, 5)"
+                        style="background:none; border:none; color:white; cursor:pointer; font-size:1.1rem;">⬇️</button>
+                    <button onclick="moveBg(5, 0)"
+                        style="background:none; border:none; color:white; cursor:pointer; font-size:1.1rem;">➡️</button>
+
+                    <span style="border-left:1px solid #666; height:20px; margin:0 2px;"></span>
+
+                    <button onclick="zoomBg(-10)"
+                        style="background:none; border:none; color:white; cursor:pointer; font-size:1.1rem;">➖</button>
+                    <button onclick="zoomBg(10)"
+                        style="background:none; border:none; color:white; cursor:pointer; font-size:1.1rem;">➕</button>
+
+                    <span style="border-left:1px solid #666; height:20px; margin:0 2px;"></span>
+
+                    <button onclick="saveBgPosition()"
+                        style="background:none; border:none; color:#2ecc71; font-weight:bold; cursor:pointer; font-size:1.2rem;"
+                        title="Guardar">💾</button>
+                    <button onclick="closeBgEditor()"
+                        style="background:none; border:none; color:#e74c3c; font-weight:bold; cursor:pointer; font-size:1.2rem;"
+                        title="Cancelar">❌</button>
+                </div>
+
+                <button onclick="closeUserProfile()"
+                    style="position:absolute; top:10px; right:15px; background:none; border:none; color:#64748b; font-size:1.8rem; cursor:pointer;">&times;</button>
+
+                <div id="prof-avatar" onclick="window.tryUploadAvatar()"
+                    style="width:80px; height:80px; background:#ff4757; border-radius:50%; margin:0 auto 15px; display:flex; align-items:center; justify-content:center; font-size:2rem; font-weight:bold; color:white; box-shadow:0 0 20px rgba(255,71,87,0.4); border:3px solid rgba(255,255,255,0.1); overflow:hidden; position: relative;">
+                    <span id="prof-avatar-text">G</span>
+                    <img id="prof-avatar-img" src="" style="width:100%; height:100%; object-fit:cover; display:none;">
+                    <div id="prof-avatar-overlay"
+                        style="position:absolute; bottom:0; width:100%; height:30%; background:rgba(0,0,0,0.5); font-size:0.6rem; color:white; display:none; align-items:center; justify-content:center;">
+                        📷</div>
+                </div>
+                <input type="file" id="avatar-upload-input" accept="image/*" style="display:none;"
+                    onchange="window.handleAvatarSelected(this)">
+                <h2 id="prof-alias" style="margin:0; color:white; font-size:1.5rem;">Cargando...</h2>
+                <div id="prof-date" style="font-size:0.8rem; color:#94a3b8; margin-top:5px;">Miembro desde: --/--/----
+                </div>
+
+                <div style="display:flex; justify-content:center; gap:20px; margin-top:20px;">
+                    <div style="text-align:center;">
+                        <div id="prof-topics-count" style="font-size:1.2rem; font-weight:bold; color:white;">0</div>
+                        <div style="font-size:0.65rem; color:#94a3b8; text-transform:uppercase; letter-spacing:1px;">
+                            Reportes</div>
+                    </div>
+                    <div style="height:30px; width:1px; background:rgba(255,255,255,0.1); align-self:center;"></div>
+                    <div style="text-align:center;">
+                        <div id="prof-comments-count" style="font-size:1.2rem; font-weight:bold; color:white;">0</div>
+                        <div style="font-size:0.65rem; color:#94a3b8; text-transform:uppercase; letter-spacing:1px;">
+                            Respuestas</div>
+                    </div>
+                </div>
+
+                <!-- STATUS MESSAGE (Styling moved to style.css) -->
+                <div style="margin-top:20px; padding:0 10px;">
+                    <div id="prof-status-box">
+                        <p id="prof-status-text">"¡Bienvenido a mi perfil!"</p>
+                        <div id="prof-status-edit-container" style="display:none; width:100%; margin-top:8px;">
+                            <input type="text" id="prof-status-input" maxlength="30"
+                                placeholder="Escribe tu mensaje (max 30)...">
+                            <div style="display:flex; justify-content:center; gap:10px; margin-top:8px;">
+                                <button onclick="saveStatus()"
+                                    style="background:#22c55e; color:white; border:none; padding:5px 15px; border-radius:4px; font-size:0.75rem; cursor:pointer; font-weight:bold;">Guardar</button>
+                                <button onclick="toggleStatusEdit(false)"
+                                    style="background:rgba(255,255,255,0.1); color:white; border:none; padding:5px 15px; border-radius:4px; font-size:0.75rem; cursor:pointer;">Cancelar</button>
+                            </div>
+                        </div>
+                        <button id="prof-status-edit-btn" onclick="toggleStatusEdit(true)">✏️ Editar Mensaje</button>
+                        <button id="prof-customize-btn" onclick="openCustomizeModal()"
+                            style="background:linear-gradient(135deg, #8b5cf6, #6366f1); color:white; border:none; padding:8px 16px; border-radius:6px; font-size:0.75rem; cursor:pointer; font-weight:bold; margin-top:10px; box-shadow:0 2px 8px rgba(139,92,246,0.3); display:none;">
+                            🎨 Personalizar Perfil
+                        </button>
+                    </div>
+
+                    <!-- X (Twitter) Field -->
+                    <div style="margin-top: 15px; text-align: center;">
+                        <a id="prof-x-link" href="#" target="_blank"
+                            style="display: none; color: #1da1f2; text-decoration: none; font-weight: bold; align-items: center; justify-content: center; gap: 5px; font-size: 0.9rem;">
+                            <span style="font-size: 1.1rem;">𝕏</span> <span id="prof-x-handle">@usuario</span>
+                        </a>
+                        <div id="prof-x-placeholder"
+                            style="color: #64748b; font-size: 0.75rem; display: none; margin-top:5px;">
+                            <span style="opacity: 0.7; border-bottom:1px dashed #444; cursor:pointer;">𝕏 Tu nombre de
+                                Usuario X</span>
+                        </div>
+
+                        <!-- Edit X Handle -->
+                        <div id="prof-x-edit-container"
+                            style="display: none; margin-top: 8px; flex-direction:column; align-items:center;">
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 5px;">
+                                <span style="color: #64748b; font-size:0.8rem;">x.com/</span>
+                                <input type="text" id="prof-x-input" placeholder="usuario" maxlength="15"
+                                    style="background: rgba(0,0,0,0.3); border: 1px solid #444; color: white; padding: 6px; border-radius: 4px; width: 120px; text-align:center;">
+                            </div>
+                            <div style="display:flex; gap:8px; margin-top:5px;">
+                                <button onclick="saveXHandle()"
+                                    style="background: #1da1f2; color: white; border: none; padding: 4px 12px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; font-weight:bold;">Guardar</button>
+                                <button onclick="toggleXEdit(false)"
+                                    style="background: rgba(255,255,255,0.1); color: #ccc; border: none; padding: 4px 12px; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">Cancelar</button>
+                            </div>
+                        </div>
+
+                        <button id="prof-x-edit-btn" onclick="toggleXEdit(true)"
+                            style="background: none; border: none; color: #1da1f2; font-size: 0.7rem; cursor: pointer; margin-top: 5px; opacity: 0.6; display:none;">
+                            Linkear X
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div style="flex:1; overflow-y:auto; padding:20px; background:rgba(15,23,42,0.6);">
+                <h4
+                    style="color:#94a3b8; margin-top:0; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:10px;">
+                    📋 Historial de Actividad</h4>
+                <div id="prof-history-list" style="display:flex; flex-direction:column; gap:12px;">
+                    <!-- Actividad aquí -->
+                </div>
+            </div>
+
+            <div
+                style="padding:15px; background:rgba(30,41,59,0.5); border-top:1px solid rgba(255,255,255,0.05); text-align:center;">
+                <p style="font-size:0.75rem; color:#64748b; margin-bottom:10px;">Enlace de Perfil</p>
+                <div
+                    style="display:flex; gap:10px; background:rgba(0,0,0,0.3); padding:8px 12px; border-radius:8px; align-items:center;">
+                    <span id="prof-link"
+                        style="flex:1; font-size:0.75rem; color:#cbd5e1; text-align:left; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">https://homicidiosuy.com/?u=Alias</span>
+                    <button onclick="copyProfileLink()"
+                        style="background:#334155; color:white; border:none; padding:5px 10px; border-radius:4px; font-size:0.7rem; cursor:pointer;">Copiar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: DONATION -->
+    <div id="donation-modal"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:5000; align-items:center; justify-content:center; padding:15px; box-sizing:border-box; backdrop-filter: blur(5px);">
+        <div
+            style="background:#ffffff; width:98%; max-width:400px; max-height:92vh; border-radius:24px; overflow:hidden; box-shadow:0 25px 80px rgba(0,0,0,0.5); display:flex; flex-direction:column; position:relative;">
+
+            <!-- Close Button -->
+            <button onclick="closeDonationModal()"
+                style="position:absolute; top:15px; right:15px; background:rgba(0,0,0,0.05); border:none; color:#333; font-size:1.2rem; cursor:pointer; width:32px; height:32px; border-radius:50%; z-index:10; display:flex; align-items:center; justify-content:center;">&times;</button>
+
+            <!-- Scrollable Content Wrapper -->
+            <div style="flex:1; overflow-y:auto; padding:30px 20px;">
+                <!-- Header -->
+                <div style="text-align:center; margin-bottom:20px;">
+                    <div style="font-size:3rem; margin-bottom:10px;">❤️</div>
+                    <h2 style="margin:0; color:#1d1d1f; font-size:1.5rem; font-weight:700; letter-spacing:-0.5px;">Apoyá
+                        este proyecto</h2>
+                </div>
+
+                <!-- Body -->
+                <p style="color:#6e6e73; line-height:1.5; font-size:0.95rem; margin:0 0 15px 0; text-align:center;">
+                    HomicidiosUY no tiene publicidad ni sistemas externos de ingresos. Todo existe gracias al apoyo de
+                    la comunidad.
+                </p>
+
+                <div
+                    style="background:#f5f5f7; padding:15px; border-radius:16px; margin:15px 0; border:1px solid rgba(0,0,0,0.03);">
+                    <p style="color:#1d1d1f; font-size:0.9rem; line-height:1.4; margin:0; text-align:center;">
+                        Donar no es obligatorio, pero si te gusta la app y querés ayudarnos a seguir mejorándola,
+                        <strong style="color:#000;">tu aporte hace la diferencia</strong>.
+                    </p>
+                </div>
+
+                <p style="color:#86868b; font-size:0.85rem; line-height:1.4; margin:15px 0; text-align:center;">
+                    Cada donación nos motiva a seguir desarrollando y optimizando.
+                </p>
+
+                <a href="https://www.patreon.com/15521489/join" target="_blank" rel="noopener noreferrer"
+                    style="display:block; width:100%; box-sizing:border-box; padding:14px; background:#007aff; color:white; border:none; border-radius:14px; font-weight:700; cursor:pointer; text-align:center; text-decoration:none; font-size:1rem; box-shadow:0 8px 20px rgba(0,122,255,0.25); transition:all 0.2s;">
+                    Donar en Patreon
+                </a>
+
+                <p style="color:#aaaaaa; font-size:0.7rem; text-align:center; margin:15px 0 0 0;">
+                    Gracias por ser parte ❤️
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: CUSTOMIZE PROFILE -->
+    <div id="customize-modal"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:6000; align-items:center; justify-content:center; padding:10px; box-sizing:border-box;">
+        <div class="glass-panel"
+            style="width:95%; max-width:500px; max-height:90vh; border-radius:15px; display:flex; flex-direction:column; overflow:hidden;">
+
+            <!-- Header -->
+            <div
+                style="background:linear-gradient(135deg, #8b5cf6, #6366f1); padding:20px; text-align:center; position:relative;">
+                <button onclick="closeCustomizeModal()"
+                    style="position:absolute; top:10px; right:15px; background:none; border:none; color:white; font-size:1.8rem; cursor:pointer;">&times;</button>
+                <h2 style="margin:0; color:white; font-size:1.3rem;">🎨 Personalizar Perfil</h2>
+                <p style="margin:5px 0 0 0; font-size:0.75rem; color:rgba(255,255,255,0.8);">Usa tu energía para
+                    destacar</p>
+            </div>
+
+            <!-- Content -->
+            <div style="flex:1; overflow-y:auto; padding:20px; background:rgba(15,23,42,0.8);">
+
+                <!-- Background Image -->
+                <div id="cust-opt-background" class="customize-option"
+                    style="margin-bottom:20px; padding:15px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <div>
+                            <div style="color:white; font-weight:bold; font-size:0.9rem;">🖼️ Foto de Fondo</div>
+                            <div style="color:#94a3b8; font-size:0.7rem;">Personaliza el fondo de tu perfil</div>
+                            <div id="cust-status-background"
+                                style="font-size:0.75rem; color:#22c55e; margin-top:4px; display:none;"></div>
+                        </div>
+                        <div
+                            style="background:rgba(255,215,0,0.1); color:#ffd700; padding:4px 10px; border-radius:6px; font-size:0.75rem; font-weight:bold;">
+                            100 pts
+                        </div>
+                    </div>
+                    <button id="cust-btn-background" onclick="purchaseCustomization('background')"
+                        class="customize-buy-btn"
+                        style="width:100%; background:linear-gradient(135deg, #8b5cf6, #6366f1); color:white; border:none; padding:10px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:0.85rem;">
+                        Comprar - 100 pts
+                    </button>
+                </div>
+
+                <!-- Verified Badge -->
+                <div id="cust-opt-verified" class="customize-option"
+                    style="margin-bottom:20px; padding:15px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <div>
+                            <div style="color:white; font-weight:bold; font-size:0.9rem;">✅ Marca Verificado</div>
+                            <div style="color:#94a3b8; font-size:0.7rem;">Dura 30 días (renovable)</div>
+                            <div id="cust-status-verified"
+                                style="font-size:0.75rem; color:#22c55e; margin-top:4px; display:none;"></div>
+                        </div>
+                        <div
+                            style="background:rgba(255,215,0,0.1); color:#ffd700; padding:4px 10px; border-radius:6px; font-size:0.75rem; font-weight:bold;">
+                            100 pts
+                        </div>
+                    </div>
+                    <button id="cust-btn-verified" onclick="purchaseCustomization('verified')" class="customize-buy-btn"
+                        style="width:100%; background:linear-gradient(135deg, #8b5cf6, #6366f1); color:white; border:none; padding:10px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:0.85rem;">
+                        Comprar (30 días)
+                    </button>
+                </div>
+
+                <!-- Profile Color -->
+                <div id="cust-opt-color" class="customize-option"
+                    style="margin-bottom:20px; padding:15px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <div>
+                            <div style="color:white; font-weight:bold; font-size:0.9rem;">🎨 Color de Perfil</div>
+                            <div style="color:#94a3b8; font-size:0.7rem;">Cambia el color de tu avatar</div>
+                            <div id="cust-status-color"
+                                style="font-size:0.75rem; color:#22c55e; margin-top:4px; display:none;"></div>
+                        </div>
+                        <div
+                            style="background:rgba(255,215,0,0.1); color:#ffd700; padding:4px 10px; border-radius:6px; font-size:0.75rem; font-weight:bold;">
+                            100 pts
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap;">
+                        <div onclick="selectProfileColor('#ff4757')" class="color-option"
+                            style="width:35px; height:35px; background:#ff4757; border-radius:50%; cursor:pointer; border:2px solid transparent;">
+                        </div>
+                        <div onclick="selectProfileColor('#3498db')" class="color-option"
+                            style="width:35px; height:35px; background:#3498db; border-radius:50%; cursor:pointer; border:2px solid transparent;">
+                        </div>
+                        <div onclick="selectProfileColor('#2ecc71')" class="color-option"
+                            style="width:35px; height:35px; background:#2ecc71; border-radius:50%; cursor:pointer; border:2px solid transparent;">
+                        </div>
+                        <div onclick="selectProfileColor('#f39c12')" class="color-option"
+                            style="width:35px; height:35px; background:#f39c12; border-radius:50%; cursor:pointer; border:2px solid transparent;">
+                        </div>
+                        <div onclick="selectProfileColor('#9b59b6')" class="color-option"
+                            style="width:35px; height:35px; background:#9b59b6; border-radius:50%; cursor:pointer; border:2px solid transparent;">
+                        </div>
+                        <div onclick="selectProfileColor('#e74c3c')" class="color-option"
+                            style="width:35px; height:35px; background:#e74c3c; border-radius:50%; cursor:pointer; border:2px solid transparent;">
+                        </div>
+                    </div>
+                    <button id="cust-btn-color" onclick="purchaseCustomization('color')" class="customize-buy-btn"
+                        style="width:100%; background:linear-gradient(135deg, #8b5cf6, #6366f1); color:white; border:none; padding:10px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:0.85rem;">
+                        Comprar - 100 pts
+                    </button>
+                </div>
+
+                <!-- Custom Font -->
+                <div id="cust-opt-font" class="customize-option"
+                    style="margin-bottom:20px; padding:15px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <div>
+                            <div style="color:white; font-weight:bold; font-size:0.9rem;">✏️ Fuente Personalizada</div>
+                            <div style="color:#94a3b8; font-size:0.7rem;">Cambia la tipografía de tu nombre</div>
+                            <div id="cust-status-font"
+                                style="font-size:0.75rem; color:#22c55e; margin-top:4px; display:none;"></div>
+                        </div>
+                        <div
+                            style="background:rgba(255,215,0,0.1); color:#ffd700; padding:4px 10px; border-radius:6px; font-size:0.75rem; font-weight:bold;">
+                            100 pts
+                        </div>
+                    </div>
+                    <select id="font-selector"
+                        style="width:100%; padding:10px; margin-bottom:10px; border-radius:6px; border:none; background:#1e293b; color:white;">
+                        <option value="Outfit">Outfit (Default)</option>
+                        <option value="Courier New">Courier New</option>
+                        <option value="Georgia">Georgia</option>
+                        <option value="Impact">Impact</option>
+                        <option value="Comic Sans MS">Comic Sans MS</option>
+                    </select>
+                    <button id="cust-btn-font" onclick="purchaseCustomization('font')" class="customize-buy-btn"
+                        style="width:100%; background:linear-gradient(135deg, #8b5cf6, #6366f1); color:white; border:none; padding:10px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:0.85rem;">
+                        Comprar - 100 pts
+                    </button>
+                </div>
+
+                <!-- Special Badge -->
+                <div id="cust-opt-badge" class="customize-option"
+                    style="margin-bottom:20px; padding:15px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <div>
+                            <div style="color:white; font-weight:bold; font-size:0.9rem;">🌟 Badge Especial</div>
+                            <div style="color:#94a3b8; font-size:0.7rem;">Icono junto a tu nombre</div>
+                            <div id="cust-status-badge"
+                                style="font-size:0.75rem; color:#22c55e; margin-top:4px; display:none;"></div>
+                        </div>
+                        <div
+                            style="background:rgba(255,215,0,0.1); color:#ffd700; padding:4px 10px; border-radius:6px; font-size:0.75rem; font-weight:bold;">
+                            100 pts
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap;">
+                        <div onclick="selectBadge('⭐')" class="badge-option"
+                            style="width:35px; height:35px; background:rgba(255,255,255,0.1); border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; border:2px solid transparent;">
+                            ⭐</div>
+                        <div onclick="selectBadge('👑')" class="badge-option"
+                            style="width:35px; height:35px; background:rgba(255,255,255,0.1); border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; border:2px solid transparent;">
+                            👑</div>
+                        <div onclick="selectBadge('🔥')" class="badge-option"
+                            style="width:35px; height:35px; background:rgba(255,255,255,0.1); border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; border:2px solid transparent;">
+                            🔥</div>
+                        <div onclick="selectBadge('💎')" class="badge-option"
+                            style="width:35px; height:35px; background:rgba(255,255,255,0.1); border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; border:2px solid transparent;">
+                            💎</div>
+                        <div onclick="selectBadge('🛡️')" class="badge-option"
+                            style="width:35px; height:35px; background:rgba(255,255,255,0.1); border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; border:2px solid transparent;">
+                            🛡️</div>
+                    </div>
+                    <button id="cust-btn-badge" onclick="purchaseCustomization('badge')" class="customize-buy-btn"
+                        style="width:100%; background:linear-gradient(135deg, #8b5cf6, #6366f1); color:white; border:none; padding:10px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:0.85rem;">
+                        Comprar - 100 pts
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Footer -->
+            <div
+                style="padding:15px; background:rgba(30,41,59,0.5); border-top:1px solid rgba(255,255,255,0.05); text-align:center;">
+                <div style="font-size:0.75rem; color:#94a3b8;">
+                    Tu energía actual: <span id="customize-energy-display"
+                        style="color:#ffd700; font-weight:bold;">0</span> ⚡
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: NEW TOPIC (Independent Overlay) -->
+    <div id="new-topic-modal"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:11000; align-items:center; justify-content:center; padding:10px; box-sizing:border-box; backdrop-filter: blur(5px);">
+        <div
+            style="background:#1e293b; width:100%; max-width:400px; max-height:94vh; overflow-y:auto; padding:18px; border-radius:24px; border:1px solid rgba(255,255,255,0.08); position:relative; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); display:flex; flex-direction:column; gap:12px;">
+
+            <button onclick="closeNewTopicModal()"
+                style="position:absolute; top:12px; right:12px; background:rgba(255,255,255,0.05); border:none; color:#94a3b8; width:30px; height:30px; border-radius:50%; font-size:1.2rem; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:10;">&times;</button>
+
+            <!-- Header -->
+            <div style="text-align:center; margin-bottom:5px;">
+                <h3 style="color:white; margin:0; font-size:1.2rem; font-weight:700; letter-spacing:-0.5px;">📝 Nuevo
+                    Tema</h3>
+                <p style="color:#64748b; font-size:0.75rem; margin:4px 0 0 0;">Comparte información con la comunidad</p>
+            </div>
+
+            <!-- Form -->
+            <div style="display:flex; flex-direction:column; gap:8px;">
+                <div>
+                    <label
+                        style="color:#94a3b8; font-size:0.6rem; font-weight:700; text-transform:uppercase; margin-bottom:2px; display:block;">Título</label>
+                    <input type="text" id="topic-title" placeholder="Ej: Robo en el Centro" maxlength="50"
+                        style="width:100%; box-sizing:border-box; padding:8px 12px; background:#0f172a; border:1px solid #334155; color:white; border-radius:10px; outline:none; font-size:0.85rem;">
+                </div>
+                
+                <div>
+                    <label
+                        style="color:#ffffff; font-size:0.6rem; font-weight:700; text-transform:uppercase; margin-bottom:2px; display:block;">Hashtag</label>
+                    <input type="text" id="topic-hashtag" placeholder="#seguridad #zona" maxlength="60"
+                        style="width:100%; box-sizing:border-box; padding:8px 12px; background:#0f172a; border:1px solid rgba(29, 161, 242, 0.4); color:#1da1f2; border-radius:10px; outline:none; font-size:0.85rem;"
+                        oninput="this.value = this.value.replace(/\\s+/g, ' ');">
+                    <div id="hashtag-suggestions" style="display:flex; gap:8px; flex-wrap:wrap; margin-top:6px;"></div>
+                </div>
+
+                <div>
+                    <label
+                        style="color:#94a3b8; font-size:0.6rem; font-weight:700; text-transform:uppercase; margin-bottom:2px; display:block;">Categoría</label>
+                    <select id="topic-category"
+                        onchange="toggleLocationSection(this.value); window.toggleSourceField(this.value);"
+                        style="width:100%; box-sizing:border-box; padding:8px 12px; background:#0f172a; border:1px solid #334155; color:white; border-radius:10px; outline:none; font-size:0.85rem;">
+                        <option value="alerta">⚠️ ALERTA / PELIGRO</option>
+                        <option value="denuncia">📢 DENUNCIA PÚBLICA</option>
+                        <option value="consulta">❓ CONSULTA</option>
+                        <option value="residuos">♻️ GESTIÓN DE RESIDUOS</option>
+                    </select>
+                </div>
+
+                <!-- Location Section -->
+                <div id="topic-location-section" style="display:block;">
+                    <button type="button" onclick="startLocationPicker()" id="btn-location-picker"
+                        style="width:100%; padding:8px; background:linear-gradient(135deg, #e1b12c, #d1a11c); border:none; color:#1e293b; border-radius:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; font-weight:700; font-size:0.8rem;">
+                        <span>📍</span> Marcar Ubicación
+                    </button>
+                    <div id="location-status"
+                        style="font-size:0.65rem; color:#64748b; margin-top:4px; text-align:center;">Ubicación no
+                        seleccionada</div>
+
+                    <div style="display:flex; align-items:center; gap:8px; margin:8px 0;">
+                        <div style="flex:1; height:1px; background:rgba(255,255,255,0.05);"></div>
+                        <span style="color:#475569; font-size:0.55rem; font-weight:700;">Ó ESCRIBE LA CALLE</span>
+                        <div style="flex:1; height:1px; background:rgba(255,255,255,0.05);"></div>
+                    </div>
+
+                    <input type="text" id="topic-address-input" placeholder="Ej: 18 de Julio y Ejido"
+                        style="width:100%; box-sizing:border-box; padding:8px 12px; background:#0f172a; border:1px solid #334155; color:white; border-radius:10px; outline:none; font-size:0.8rem;">
+
+                    <input type="hidden" id="topic-lat">
+                    <input type="hidden" id="topic-lng">
+                </div>
+
+                <div>
+                    <label
+                        style="color:#94a3b8; font-size:0.6rem; font-weight:700; text-transform:uppercase; margin-bottom:2px; display:block;">Mensaje</label>
+                    <textarea id="topic-content" rows="2" placeholder="¿Qué está pasando?" maxlength="300"
+                        style="width:100%; box-sizing:border-box; padding:8px 12px; background:#0f172a; border:1px solid #334155; color:white; border-radius:10px; resize:none; outline:none; font-size:0.85rem; line-height:1.3;"></textarea>
+                </div>
+
+                <!-- Source URL Section for Danger/Complaint -->
+                <div id="topic-source-wrapper" style="display:none;">
+                    <label
+                        style="color:#94a3b8; font-size:0.6rem; font-weight:700; text-transform:uppercase; margin-bottom:2px; display:block;">
+                        🔗 Fuente (Opcional)
+                    </label>
+                    <input type="url" id="topic-source" placeholder="Pega el link aquí."
+                        style="width:100%; box-sizing:border-box; padding:8px 12px; background:#0f172a; border:1px solid #334155; color:white; border-radius:10px; outline:none; font-size:0.8rem;">
+                </div>
+
+                <!-- Photo Upload Section -->
+                <div>
+                    <label
+                        style="color:#94a3b8; font-size:0.6rem; font-weight:700; text-transform:uppercase; margin-bottom:2px; display:block;">📷
+                        Foto (Opcional)</label>
+                    <input type="file" id="topic-photo-input" accept="image/*" style="display:none;"
+                        onchange="window.handleTopicPhotoSelected(this)">
+                    <button type="button" onclick="document.getElementById('topic-photo-input').click()"
+                        style="width:100%; padding:8px; background:rgba(59, 130, 246, 0.05); border:1.5px dashed rgba(59, 130, 246, 0.4); color:#3b82f6; border-radius:10px; cursor:pointer; font-size:0.8rem; font-weight:600;">
+                        📸 Agregar evidencia visual
+                    </button>
+                    <div id="topic-photo-preview" style="display:none; margin-top:8px; position:relative;">
+                        <img id="topic-photo-preview-img" src=""
+                            style="width:100%; max-height:120px; object-fit:cover; border-radius:10px; border:1px solid #334155;">
+                        <button type="button" onclick="window.removeTopicPhoto()"
+                            style="position:absolute; top:5px; right:5px; background:rgba(0,0,0,0.7); color:white; border:none; width:22px; height:22px; border-radius:50%; font-size:0.9rem; display:flex; align-items:center; justify-content:center;">×</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Honeypot -->
+            <input type="text" id="topic-hp-field" style="display:none !important;" tabindex="-1" autocomplete="off">
+
+            <button onclick="submitNewTopic()"
+                style="width:100%; background:linear-gradient(135deg, #ef4444, #dc2626); color:white; border:none; padding:10px; border-radius:12px; font-weight:700; cursor:pointer; font-size:0.9rem; box-shadow:0 6px 15px rgba(239, 68, 68, 0.25);">
+                Publicar Ahora
+            </button>
+        </div>
+    </div>
+
+    <!-- Share Modal (Redesigned) -->
+    <div id="share-modal" class="modal-overlay" style="display:none; z-index:3000;">
+        <div class="modal-content glass-panel share-card">
+            <button onclick="closeShareModal()" class="close-share-x">×</button>
+
+            <div class="share-header">
+                <h2 class="share-title">📢 Difundir Realidad</h2>
+                <p class="share-subtitle">Ayuda a visualizar los datos de seguridad.</p>
+            </div>
+
+            <!-- Map Preview Frame -->
+            <div class="preview-frame">
+                <div id="share-preview" class="map-preview-box">
+                    <span id="preview-text">📸 Generando captura...</span>
+                    <img id="preview-img" style="display:none; width:100%; height:100%; object-fit:cover;">
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="share-actions">
+                <button onclick="downloadMapImage()" class="btn-download-gradient">
+                    ⬇️ Guardar Captura
+                </button>
+
+                <div class="share-divider"><span>Compartir enlace</span></div>
+
+                <div class="social-icons-row">
+                    <button onclick="shareSocial('twitter')" class="social-circle-btn twitter"
+                        title="X (Twitter)">𝕏</button>
+                    <button onclick="shareSocial('facebook')" class="social-circle-btn facebook"
+                        title="Facebook">f</button>
+                    <button onclick="shareSocial('whatsapp')" class="social-circle-btn whatsapp"
+                        title="WhatsApp">📱</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Photo Viewer Modal -->
+    <div id="photo-modal" onclick="window.closePhotoModal()"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:9000; align-items:center; justify-content:center; cursor:zoom-out;">
+        <button onclick="window.closePhotoModal()"
+            style="position:absolute; top:20px; right:20px; background:rgba(255,255,255,0.2); border:none; color:white; width:40px; height:40px; border-radius:50%; cursor:pointer; font-size:1.5rem; z-index:9001;">×</button>
+        <img id="photo-modal-img" src="" style="max-width:95%; max-height:95%; object-fit:contain; border-radius:8px;">
+    </div>
+
+
+
+    <!-- SEO Content (Hidden visually but readable by bots) -->
+    <div style="position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap;">
+        <h1>Mapa de Inseguridad y Homicidios en Uruguay 2026</h1>
+        <p>HomicidiosUY es la plataforma líder en visualización de datos de criminalidad en Uruguay. Reportamos
+            incidentes en Montevideo, Canelones y el interior del país.</p>
+        <h2>Estadísticas de Seguridad Montevideo</h2>
+        <p>Accede a datos actualizados sobre violencia, rapiñas y zonas de riesgo. Monitor ciudadano
+            independiente.</p>
+        <ul>
+            <li>Homicidios Montevideo 2025</li>
+            <li>Mapa del Delito Uruguay</li>
+            <li>Inseguridad 2026</li>
+            <li>Reportes Policiales</li>
+        </ul>
+    </div>
+
+    <!-- Scripts -->
+    <!-- Chart.js for Trend Graph -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- Leaflet MarkerCluster JS -->
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+    <script
+        src="https://unpkg.com/leaflet-simple-map-screenshoter@0.5.0/dist/leaflet-simple-map-screenshoter.js"></script>
+    <script src="https://unpkg.com/topojson@3"></script>
+    <script src="script.js?v=GPS_UPDATE_UPDATED1_UPDATED"></script>
+    <script>
+        // Inline safety fallback with HIGH ACCURACY and visual marker
+        window.locateMe = function () {
+            if (!navigator.geolocation) {
+                alert("Tu dispositivo no soporta GPS.");
+                return;
+            }
+            navigator.geolocation.getCurrentPosition((pos) => {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+                if (window.map) {
+                    window.map.flyTo([lat, lng], 17, { animate: true, duration: 1.5 });
+
+                    // Create or update blue dot
+                    if (window.myLocationMarker) {
+                        window.myLocationMarker.setLatLng([lat, lng]);
+                    } else {
+                        window.myLocationMarker = L.circleMarker([lat, lng], {
+                            radius: 8,
+                            fillColor: '#3b82f6',
+                            color: '#fff',
+                            weight: 2,
+                            opacity: 1,
+                            fillOpacity: 0.9
+                        }).addTo(window.map);
+                    }
+                }
+            }, (err) => {
+                alert("Error de GPS: Verifica los permisos de tu celular.");
+            }, {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            });
+        };
+    </script>
+
+    <script>
+        // 🚀 GESTIÓN DE INICIO ESTRATÉGICO (Móvil)
+        function startSystemServices() {
+            let attempts = 0;
+            const maxAttempts = 20; // 10 segundos total (cada 500ms)
+
+            const checkAndStart = setInterval(() => {
+                attempts++;
+                const hasCapacitor = !!window.Capacitor;
+                const hasRadar = typeof window.initRadar === 'function';
+                const hasPush = typeof window.initPush === 'function';
+
+                // Si detectamos que es entorno APK (file:) o Capacitor listo
+                const isMobileEnv = hasCapacitor || window.location.protocol === 'file:';
+
+                console.log(`🚀 Intento ${attempts}: Cap:${hasCapacitor} Radar:${hasRadar} Push:${hasPush}`);
+
+                if (isMobileEnv && hasRadar && hasPush) {
+                    clearInterval(checkAndStart);
+                    console.log("✅ Sistema listo. Iniciando servicios...");
+
+                    // Iniciar Push INMEDIATAMENTE
+                    window.initPush();
+
+                    // Iniciar Radar con delay para permisos
+                    setTimeout(() => {
+                        window.initRadar();
+                    }, 2000);
+                }
+
+                if (attempts >= maxAttempts) {
+                    clearInterval(checkAndStart);
+                    if (!isMobileEnv) {
+                        console.log("🌐 Entorno Web detectado.");
+                    } else {
+                        console.error("❌ Falló el inicio de servicios móviles tras 10s.");
+                    }
+                }
+            }, 500);
+        }
+
+        window.addEventListener('load', startSystemServices);
+
+        // --- SERVICE WORKER (Sólo Web) ---
+        if ('serviceWorker' in navigator && !window.Capacitor) {
+            let refreshing = false;
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                if (!refreshing) {
+                    refreshing = true;
+                    window.location.reload();
+                }
+            });
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(reg => {
+                        console.log('PWA Service Worker registrado');
+                        setInterval(() => { reg.update(); }, 60000);
+                        if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                    })
+                    .catch(err => console.log('Error registro SW:', err));
+            });
+        }
+
+        // TRACKING DE VISITAS
+        if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+            fetch('https://homicidiosuy.com/counter.php?action=add')
+                .then(r => r.json())
+                .then(d => console.log("Visita registrada. Total: " + d.count))
+                .catch(e => console.log("Error tracking:", e));
+        }
+    </script>
+    <!-- LOCATION PICKER OVERLAY -->
+    <div id="location-picker-ui"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:11000; pointer-events:none;">
+        <!-- Center Target Icon -->
+        <div
+            style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); color:#e1b12c; font-size:3.5rem; text-shadow:0 0 15px rgba(0,0,0,0.5); pointer-events:none; margin-top:-1.75rem;">
+            ✛
+        </div>
+
+        <!-- Bottom Controls -->
+        <div
+            style="position:absolute; bottom:40px; left:50%; transform:translateX(-50%); width:92%; max-width:380px; background:rgba(15,23,42,0.98); padding:18px; border-radius:20px; pointer-events:auto; display:flex; flex-direction:column; align-items:center; box-shadow:0 10px 40px rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.1); backdrop-filter:blur(10px);">
+            <p style="margin:0 0 12px 0; color:#cbd5e1; font-size:0.85rem; text-align:center; font-weight:500;">Mueve el
+                mapa para apuntar al lugar</p>
+            <div style="display:flex; gap:10px; width:100%;">
+                <button onclick="cancelLocationPicker()"
+                    style="flex:1; padding:10px; background:#444; color:white; border:none; border-radius:8px; font-weight:bold;">Cancelar</button>
+                <button onclick="confirmLocationPicker()"
+                    style="flex:1; padding:10px; background:#e1b12c; color:#1e293b; border:none; border-radius:8px; font-weight:bold;">✅
+                    Confirmar</button>
+            </div>
+            <div id="picker-coords" style="font-size:0.75rem; color:#aaa; margin-top:8px; font-family:monospace;">-
+            </div>
+        </div>
+    </div>
+
+    <!-- FEED MODE CONTAINER (Where widget moves when expanded) -->
+    <div id="feed-mode-container"
+        style="display:none; position:fixed; top:60px; left:0; width:100%; height:calc(100% - 60px); z-index:500; align-items:flex-start; justify-content:center; pointer-events:none; padding-top:20px;">
+        <!-- Widget lands here via JS -->
+    </div>
+
+    <!-- MODAL: COMMUNITY STATS -->
+    <div id="stats-modal"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:7000; align-items:center; justify-content:center; padding:20px; box-sizing:border-box; backdrop-filter: blur(5px);">
+        <div
+            style="background:#1e293b; width:100%; max-width:450px; max-height:90vh; overflow-y:auto; padding:0; border-radius:16px; border:1px solid rgba(255,255,255,0.1); position:relative; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+
+            <!-- Header -->
+            <div
+                style="padding:20px; border-bottom:1px solid rgba(255,255,255,0.1); display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.2);">
+                <h3 style="margin:0; color:white; font-size:1.2rem; display:flex; align-items:center; gap:8px;">
+                    🏆 Estadísticas Comunidad
+                </h3>
+                <button onclick="document.getElementById('stats-modal').style.display='none'"
+                    style="background:none; border:none; color:#ddd; font-size:1.5rem; cursor:pointer;">&times;</button>
+            </div>
+
+            <div style="padding:25px;">
+                <!-- Total Users -->
+                <div
+                    style="text-align:center; margin-bottom:25px; background:rgba(255,255,255,0.05); padding:15px; border-radius:12px;">
+                    <span
+                        style="display:block; font-size:0.8rem; color:#94a3b8; text-transform:uppercase; letter-spacing:1px;">Usuarios
+                        Registrados</span>
+                    <span id="stat-total-users"
+                        style="font-size:2rem; font-weight:bold; color:#38bdf8;">Cargando...</span>
+                </div>
+
+                <!-- Categories Stats -->
+                <div style="margin-bottom:25px;">
+                    <h4
+                        style="color:#cbd5e1; margin:0 0 15px 0; font-size:0.95rem; border-left:3px solid #e1b12c; padding-left:10px;">
+                        📊 Temas por Categoría</h4>
+                    <div id="stat-categories-list" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                        <!-- JS Injected -->
+                    </div>
+                </div>
+
+                <!-- Top Hashtags -->
+                <div style="margin-bottom:25px;">
+                    <h4
+                        style="color:#cbd5e1; margin:0 0 15px 0; font-size:0.95rem; border-left:3px solid #1da1f2; padding-left:10px;">
+                        #️⃣ Top 5 Hashtags</h4>
+                    <div id="stat-top-hashtags-list"
+                        style="background:rgba(0,0,0,0.2); border-radius:8px; overflow:hidden;">
+                        <!-- JS Injected -->
+                    </div>
+                </div>
+
+                <!-- Top Users -->
+                <div>
+                    <h4
+                        style="color:#cbd5e1; margin:0 0 15px 0; font-size:0.95rem; border-left:3px solid #ff4757; padding-left:10px;">
+                        🥇 Top 10 Colaboradores</h4>
+                    <div id="stat-top-users-list"
+                        style="background:rgba(0,0,0,0.2); border-radius:8px; overflow:hidden;">
+                        <!-- JS Injected -->
+                    </div>
+                </div>
+
+                <!-- Terms Link -->
+                <div
+                    style="margin-top: 30px; text-align: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+                    <a href="terminos.html"
+                        style="display: inline-block; color: #94a3b8; text-decoration: none; font-size: 0.85rem; padding: 8px 16px; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; transition: all 0.2s;"
+                        onmouseover="this.style.background='rgba(255,255,255,0.05)'; this.style.color='#fff'"
+                        onmouseout="this.style.background='transparent'; this.style.color='#94a3b8'">
+                        📜 Reglas de HomicidiosUY
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Universal Edit Modal -->
+    <div id="universal-edit-modal"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:6000; align-items:center; justify-content:center; backdrop-filter:blur(4px);">
+        <div
+            style="background:#1e293b; padding:25px; border-radius:16px; width:92%; max-width:400px; border:1px solid rgba(255,255,255,0.1); box-shadow:0 20px 50px rgba(0,0,0,0.6);">
+            <h3 id="edit-modal-title" style="color:white; margin:0 0 5px 0; font-size:1.2rem;">Editar</h3>
+
+            <!-- Topic Info Badges -->
+            <div id="edit-modal-info-badges" style="display:flex; gap:8px; margin-bottom:15px; flex-wrap:wrap;">
+                <span id="badge-has-photo"
+                    style="font-size:0.65rem; padding:3px 8px; border-radius:100px; background:rgba(16,185,129,0.1); color:#10b981; border:1px solid rgba(16,185,129,0.2); display:none;">📸
+                    Con Foto</span>
+                <span id="badge-has-source"
+                    style="font-size:0.65rem; padding:3px 8px; border-radius:100px; background:rgba(59,130,246,0.1); color:#3b82f6; border:1px solid rgba(59,130,246,0.2); display:none;">🔗
+                    Con Fuente</span>
+                <span id="badge-has-location"
+                    style="font-size:0.65rem; padding:3px 8px; border-radius:100px; background:rgba(245,158,11,0.1); color:#f59e0b; border:1px solid rgba(245,158,11,0.2); display:none;">📍
+                    Con Ubicación</span>
+            </div>
+
+            <input type="text" id="edit-modal-input-title" placeholder="Título"
+                style="width:100%; padding:10px; background:#0f172a; border:1px solid #334155; color:white; border-radius:8px; margin-bottom:12px; box-sizing:border-box; outline:none; display:none;">
+
+            <select id="edit-modal-input-category"
+                style="width:100%; padding:10px; background:#0f172a; border:1px solid #334155; color:white; border-radius:8px; margin-bottom:12px; box-sizing:border-box; outline:none; display:none;">
+                <option value="alerta">⚠️ ALERTA</option>
+                <option value="denuncia">📢 DENUNCIA PÚBLICA</option>
+                <option value="residuos">♻️ GESTIÓN DE RESIDUOS</option>
+                <option value="consulta">❓ CONSULTA</option>
+            </select>
+
+            <div id="edit-modal-permanent-container"
+                style="display:none; align-items:center; gap:10px; margin-bottom:12px; background:rgba(255,255,255,0.05); padding:10px; border-radius:8px;">
+                <span style="color:#cbd5e1; font-size:0.85rem;">📌 ¿Es Permanente?</span>
+                <input type="checkbox" id="edit-modal-input-permanent" style="width:20px; height:20px; cursor:pointer;">
+            </div>
+
+            <textarea id="edit-modal-input-content" rows="6" placeholder="Escribe aquí..."
+                style="width:100%; padding:12px; background:#0f172a; border:1px solid #334155; color:white; border-radius:8px; resize:vertical; box-sizing:border-box; font-family:inherit; font-size:1rem; outline:none;"></textarea>
+
+            <div id="edit-modal-message"
+                style="color:#94a3b8; font-size:0.9rem; margin-top:10px; display:none; text-align:center;">
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:20px;">
+                <button onclick="closeEditModal()"
+                    style="padding:10px 18px; background:transparent; color:#94a3b8; border:none; cursor:pointer; font-weight:600;">Cancelar</button>
+                <button onclick="confirmEdit()"
+                    style="padding:10px 25px; background:#ef4444; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:bold; box-shadow:0 4px 12px rgba(239, 68, 68, 0.3);">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PHOTO MODAL LIGHTBOX -->
+    <div id="photo-modal"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:99999; align-items:center; justify-content:center; backdrop-filter:blur(5px); animation:fadeIn 0.2s;"
+        onclick="window.closePhotoModal()">
+
+        <button onclick="window.closePhotoModal()"
+            style="display:flex; position:absolute; top:20px; right:20px; background:rgba(255,255,255,0.1); border:none; color:white; font-size:2rem; width:50px; height:50px; border-radius:50%; align-items:center; justify-content:center; cursor:pointer; z-index:7001;">&times;</button>
+
+        <img id="photo-modal-img" src=""
+            style="max-width:95%; max-height:90vh; object-fit:contain; border-radius:4px; box-shadow:0 0 50px rgba(0,0,0,0.8);"
+            onclick="event.stopPropagation();">
+    </div>
+
+    <!-- PIXEL FEED (Ultimos Píxeles) -->
+    <div id="pixel-feed" style="display:none; position:fixed; top:20px; left:20px; z-index:9999; 
+                background:rgba(0,0,0,0.6); padding:10px; border-radius:12px; 
+                backdrop-filter:blur(4px); border:1px solid rgba(255,255,255,0.1); 
+                max-width:250px; font-family:'Outfit', sans-serif;">
+        <div
+            style="font-size:0.75rem; font-weight:bold; color:#fbbf24; margin-bottom:5px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:3px;">
+            HÉROES DEL PÍXEL
+        </div>
+        <div id="pixel-feed-list" style="display:flex; flex-direction:column; gap:4px;">
+            <!-- Items JS injected here -->
+        </div>
+    </div>
+
+    <!-- PIXEL WAR UI -->
+    <div id="pixel-war-ui"
+        style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:9999; 
+         background:rgba(15, 23, 42, 0.95); padding:15px; border-radius:16px; border:1px solid rgba(255,255,255,0.2); 
+         box-shadow:0 10px 30px rgba(0,0,0,0.5); backdrop-filter:blur(10px); width:90%; max-width:400px; flex-direction:column; align-items:center;">
+
+        <div style="display:flex; justify-content:space-between; width:100%; align-items:center; margin-bottom:10px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:1.2rem;">🎨</span>
+                <span style="color:white; font-weight:bold; font-size:1rem;">Arte en Píxeles</span>
+            </div>
+            <button onclick="togglePixelWar(false)"
+                style="background:transparent; border:none; color:#ef4444; font-size:1.5rem; cursor:pointer;">&times;</button>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; width:100%; align-items:center; margin-bottom:10px;">
+            <div id="pixel-timer"
+                style="color:#fbbf24; font-weight:bold; font-size:0.9rem; background:rgba(251, 191, 36, 0.1); padding:5px 10px; border-radius:12px;">
+                Lienzo Abierto</div>
+            <button onclick="goToLastPixel()" id="btn-last-pixel"
+                style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:white; font-size:0.75rem; padding:5px 10px; border-radius:12px; cursor:pointer; display:none;">
+                📍 Mi Obra
+            </button>
+        </div>
+
+        <!-- MANUAL CONTROLS (Mobile Fallback) -->
+        <div id="pixel-controls"
+            style="position:fixed; bottom:160px; right:10px; display:flex; flex-direction:column; gap:10px; align-items:center; pointer-events:auto; z-index:10000;">
+            <!-- Zoom -->
+            <div
+                style="display:flex; flex-direction:column; gap:8px; background:rgba(0,0,0,0.6); padding:8px; border-radius:20px; backdrop-filter:blur(4px); border:1px solid rgba(255,255,255,0.2);">
+                <button onclick="window.map.zoomIn()"
+                    style="width:36px; height:36px; border-radius:50%; border:none; background:rgba(255,255,255,0.9); color:#333; font-size:1.4rem; font-weight:bold; cursor:pointer; box-shadow:0 4px 6px rgba(0,0,0,0.3); line-height:1;">+</button>
+                <button onclick="window.map.zoomOut()"
+                    style="width:36px; height:36px; border-radius:50%; border:none; background:rgba(255,255,255,0.9); color:#333; font-size:1.4rem; font-weight:bold; cursor:pointer; box-shadow:0 4px 6px rgba(0,0,0,0.3); line-height:1;">-</button>
+            </div>
+
+            <!-- D-Pad -->
+            <div
+                style="position:relative; width:90px; height:90px; margin-top:5px; background:rgba(0,0,0,0.3); border-radius:50%; backdrop-filter:blur(2px);">
+                <button onclick="window.map.panBy([0, -80])"
+                    style="position:absolute; top:5px; left:30px; width:30px; height:30px; border-radius:5px; background:rgba(255,255,255,0.8); border:none; color:#333; font-size:0.8rem; box-shadow:0 2px 4px rgba(0,0,0,0.2);">▲</button>
+                <button onclick="window.map.panBy([0, 80])"
+                    style="position:absolute; bottom:5px; left:30px; width:30px; height:30px; border-radius:5px; background:rgba(255,255,255,0.8); border:none; color:#333; font-size:0.8rem; box-shadow:0 2px 4px rgba(0,0,0,0.2);">▼</button>
+                <button onclick="window.map.panBy([-80, 0])"
+                    style="position:absolute; top:30px; left:5px; width:30px; height:30px; border-radius:5px; background:rgba(255,255,255,0.8); border:none; color:#333; font-size:0.8rem; box-shadow:0 2px 4px rgba(0,0,0,0.2);">◀</button>
+                <button onclick="window.map.panBy([80, 0])"
+                    style="position:absolute; top:30px; right:5px; width:30px; height:30px; border-radius:5px; background:rgba(255,255,255,0.8); border:none; color:#333; font-size:0.8rem; box-shadow:0 2px 4px rgba(0,0,0,0.2);">▶</button>
+            </div>
+        </div>
+
+        <div style="font-size:0.75rem; color:#94a3b8; text-align:center;">
+            Deja tu marca artística en el mapa.<br>1 píxel cada 5 minutos.
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="pixel-war.js?v=6"></script>
+
+    <script src="location-picker.js?v=126"></script>
+    <script src="mobile-gestures.js?v=126"></script>
+    <script src="category-filter.js?v=5"></script>
+    <script src="radar-alerta.js?v=4"></script>
+    <script src="push-manager.js?v=4"></script>
+    <script type="module" src="firebase-logic-v2.js?v=129"></script>
+
+    <!-- Mobile Bottom Navigation Bar (FULL WIDTH) -->
+    <div id="mobile-bottom-bar" class="mobile-nav-bar" style="background:black; border-top:1px solid #333;">
+        <!-- 1. MAPA -->
+        <div class="mobile-nav-item" onclick="window.switchXTab('mapa')">
+            <span class="nav-icon">🗺️</span>
+            <span class="nav-label">Mapa</span>
+        </div>
+
+        <!-- 2. UBICACIÓN -->
+        <div class="mobile-nav-item" onclick="window.switchXTab('mapa'); setTimeout(locateMe, 300);">
+            <span class="nav-icon">🎯</span>
+            <span class="nav-label">Ubicación</span>
+        </div>
+
+        <!-- 3. ACTION BUTTON (Login/Logout) -->
+        <div class="mobile-nav-item" id="btn-auth-toggle" onclick="handleAuthToggle()">
+            <div class="google-fab" id="auth-fab" style="background: linear-gradient(135deg, #3b82f6, #2563eb); border:none;">
+                <span class="nav-icon" id="auth-icon" style="color:white; font-size:1.8rem;">👤</span>
+            </div>
+            <span class="nav-label" id="auth-label" style="color:#3b82f6; font-weight: bold;">Iniciar Sesión</span>
+        </div>
+
+        <!-- 4. INICIO (Feed) -->
+        <div class="mobile-nav-item" onclick="window.switchXTab('reportes')">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-label">Inicio</span>
+        </div>
+
+        <!-- 5. User/Profile -->
+        <div class="mobile-nav-item" id="mobile-login-btn" onclick="loginWithGoogle()">
+            <div class="google-fab" style="width:32px; height:32px; margin-top:0; border-width:1px;">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+            </div>
+            <span class="nav-label">Cuenta</span>
+        </div>
+    </div>
+
+
+
+    <!-- Dynamic App Status Bar (Premium look) -->
+    <div id="radar-debug-bar"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:28px; background:rgba(15, 23, 42, 0.9); color:#f1f5f9; font-size:10px; z-index:10000; align-items:center; justify-content:center; gap:12px; font-family:'Outfit', sans-serif; border-bottom:1px solid rgba(255,255,255,0.05); backdrop-filter:blur(10px); letter-spacing:0.5px;">
+        <span style="display:flex; align-items:center; gap:4px;">
+            <span style="color:#ff4757; font-size:12px;">🛡️</span>
+            <b>HomicidiosUY:</b> <span id="st-token" style="color:#94a3b8; font-weight:700;">Pendiente</span>
+        </span>
+        <span style="width:1px; height:12px; background:rgba(255,255,255,0.1);"></span>
+        <span style="display:flex; align-items:center; gap:4px;">
+            <span style="color:#e1b12c; font-size:12px;">📍</span>
+            <b>SERVIDOR:</b> <span id="st-loc" style="color:#94a3b8; font-weight:700;">Pendiente</span>
+        </span>
+    </div>
+
+    <script>
+        // Smooth Status Updates
+        if (window.Capacitor || window.location.protocol === 'file:') {
+            document.getElementById('radar-debug-bar').style.display = 'flex';
+            setInterval(() => {
+                const tokenStatus = window.lastReportedToken || "Pendiente";
+                const locStatus = window.lastReportedLoc || "Pendiente";
+
+                const tokenEl = document.getElementById('st-token');
+                const locEl = document.getElementById('st-loc');
+
+                tokenEl.textContent = tokenStatus === "Ok" ? "CONECTADO" : tokenStatus;
+                locEl.textContent = locStatus === "Ok" ? "ACTIVO" : locStatus;
+
+                if (tokenStatus === "Ok") tokenEl.style.color = "#4ade80";
+                if (locStatus === "Ok") locEl.style.color = "#4ade80";
+            }, 2000);
+        }
+
+        // Auth toggle handler and listener
+        window.handleAuthToggle = async function() {
+            const user = window.auth ? window.auth.currentUser : null;
+            if (user) {
+                // User is logged in - logout
+                await window.logout();
+                window.updateAuthButton();
+            } else {
+                // User is not logged in - login
+                await window.loginWithGoogle();
+                setTimeout(() => {
+                    window.updateAuthButton();
+                }, 500);
+            }
+        };
+
+        // Update auth button based on user state
+        window.updateAuthButton = function() {
+            const user = window.auth ? window.auth.currentUser : null;
+            const authLabel = document.getElementById('auth-label');
+            const authFab = document.getElementById('auth-fab');
+            const authIcon = document.getElementById('auth-icon');
+            
+            if (!authLabel || !authFab || !authIcon) return;
+            
+            if (user) {
+                // User logged in
+                authLabel.textContent = 'Cerrar Sesión';
+                authLabel.style.color = '#ef4444';
+                authFab.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+                authIcon.textContent = '🚪';
+            } else {
+                // User not logged in
+                authLabel.textContent = 'Iniciar Sesión';
+                authLabel.style.color = '#3b82f6';
+                authFab.style.background = 'linear-gradient(135deg, #3b82f6, #2563eb)';
+                authIcon.textContent = '👤';
+            }
+        };
+
+        // Monitor auth changes every 500ms as fallback
+        setInterval(() => {
+            window.updateAuthButton();
+        }, 500);
+
+        // Initial update
+        setTimeout(() => window.updateAuthButton(), 100);
+    </script>
+</body>
+
+</html>

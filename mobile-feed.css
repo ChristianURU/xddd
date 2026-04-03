@@ -1,0 +1,399 @@
+/* ====== MOBILE OPTIMIZATIONS FOR COMMUNITY FEED ====== */
+@media (max-width: 768px) {
+
+    /* 1. COMMUNITY PANEL - FLOATING CARD LAYOUT */
+    #community-panel {
+        position: fixed !important;
+        top: 2% !important;
+        /* Gap from top */
+        bottom: 2% !important;
+        /* Gap from bottom */
+        width: 98% !important;
+        left: 1% !important;
+        right: auto !important;
+        margin: 0 !important;
+        /* COMPACT MODE */
+        transform-origin: center center;
+
+        background: #0f172a !important;
+        border-radius: 24px !important;
+        /* Rounded corners all around */
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        /* Visible border */
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6) !important;
+        z-index: 9999 !important;
+
+        display: flex !important;
+        flex-direction: column !important;
+
+        /* Animation & State */
+        transform: translateX(0);
+        /* Default Open Position */
+        opacity: 1 !important;
+        visibility: visible !important;
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+
+        overscroll-behavior: none;
+        touch-action: none;
+        /* Disable browser handling to give full control to JS */
+    }
+
+    /* CLOSED STATE */
+    #community-panel.closed {
+        /* Move completely off-screen to the right */
+        /* Since it's at left:3%, moving 100% of width (94%) lands at 97%. 
+           Need to move slightly more to clear screen fully. */
+        transform: translateX(105%) !important;
+        pointer-events: none !important;
+    }
+
+    /* DRAG HANDLE INDICATOR */
+    #community-panel::before {
+        content: '';
+        position: absolute;
+        left: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 5px;
+        height: 60px;
+        /* Larger and more visible */
+        background: rgba(255, 255, 255, 0.3);
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
+        pointer-events: none;
+        z-index: 10001;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    }
+
+    /* 2. INNER CONTENT */
+    #community-content {
+        flex: 1;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow-x: hidden !important;
+        overflow-y: hidden !important;
+
+        /* Padding inside the card */
+        padding-top: 4px !important;
+        padding-bottom: 0 !important;
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* 3. WIDGETS - Full Width of the Inner Content */
+    #community-user,
+    .dashboard-widget:last-of-type {
+        width: 100% !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Widget Specifics */
+    #community-user {
+        flex-shrink: 0;
+        margin-bottom: 8px !important;
+        padding: 8px !important;
+        background: rgba(30, 41, 59, 0.8) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 12px !important;
+        flex-direction: column !important;
+        gap: 4px !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .desktop-only-actions {
+        display: none !important;
+    }
+
+    #community-user>div:first-child {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        width: 100% !important;
+        margin-bottom: 0 !important;
+    }
+
+    #community-user button {
+        padding: 6px 10px !important;
+        font-size: 0.85rem !important;
+        height: 38px !important;
+        border-radius: 8px !important;
+    }
+
+    /* Feed List */
+    .dashboard-widget:last-of-type {
+        background: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+    }
+
+    .dashboard-widget:last-of-type h4.widget-title {
+        flex-shrink: 0;
+        padding: 4px 10px;
+        font-size: 0.8rem;
+        background: transparent;
+        color: #94a3b8 !important;
+        font-weight: 700 !important;
+        border-radius: 0;
+        margin-bottom: 2px !important;
+        border-left: 2px solid #3b82f6;
+        display: flex;
+        align-items: center;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    #topics-list {
+        flex: 1 !important;
+        width: 100% !important;
+        overflow-y: auto !important;
+        padding-bottom: 100px !important;
+        display: block !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #community-panel .dashboard-toggle-btn {
+        display: none !important;
+    }
+
+    /* 5. HEADER & TICKER */
+    .dashboard-header {
+        width: 100% !important;
+        box-sizing: border-box !important;
+        padding-top: calc(4px + env(safe-area-inset-top)) !important;
+        padding-bottom: 4px !important;
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+        background: transparent !important;
+        border: none !important;
+        min-height: auto !important;
+    }
+
+    .dashboard-header h3 {
+        font-size: 0.85rem !important;
+    }
+
+    .btn-community-stats {
+        padding: 1px 10px !important;
+        font-size: 0.65rem !important;
+        min-height: auto !important;
+        height: 20px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 2px !important;
+        border-radius: 100px !important;
+        transition: all 0.2s ease !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.02em !important;
+    }
+
+    .energy-container {
+        height: 4px !important;
+        margin-top: 0 !important;
+    }
+
+    .top-users-ticker {
+        display: block !important;
+        width: 100% !important;
+        margin: 5px 0 15px 0 !important;
+        padding: 12px !important;
+        background: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        border-radius: 16px !important;
+    }
+
+    .ticker-label {
+        font-size: 0.8rem;
+        color: #fbbf24;
+        font-weight: bold;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .ticker-mask {
+        width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 5px;
+        scrollbar-width: none;
+    }
+
+    .ticker-mask::-webkit-scrollbar {
+        display: none;
+    }
+
+    .ticker-track {
+        display: inline-flex;
+        gap: 15px;
+    }
+
+    .ticker-item {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        color: #fff;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .topic-item {
+        padding: 6px 8px !important;
+        margin-bottom: 4px !important;
+        border-radius: 6px !important;
+    }
+
+    .topic-item-title {
+        font-size: 0.82rem !important;
+        margin: 0 0 2px 0 !important;
+        line-height: 1.2 !important;
+    }
+
+    .topic-item-content {
+        font-size: 0.72rem !important;
+        line-height: 1.3 !important;
+        -webkit-line-clamp: 2 !important;
+        line-clamp: 2 !important;
+        margin-bottom: 4px !important;
+    }
+
+    .topic-item-meta {
+        font-size: 0.6rem !important;
+    }
+
+    .topic-item-footer {
+        margin-top: 4px !important;
+        padding-top: 4px !important;
+        font-size: 0.7rem !important;
+    }
+
+    /* Compact Search */
+    #topic-search-input,
+    .x-search-input {
+        padding: 4px 8px !important;
+        font-size: 0.75rem !important;
+        margin-bottom: 0 !important;
+        height: 32px !important;
+    }
+
+    /* Buttons Compact */
+    button {
+        padding: 4px 8px;
+        /* Default reducida */
+    }
+
+    .x-tab span {
+        font-size: 0.75rem !important;
+    }
+
+    .x-header-bar {
+        height: 42px !important;
+    }
+
+    /* Hide redundant elements on extreme mobile */
+    .dashboard-header h3 span:not(.dashboard-title) {
+        display: none !important;
+    }
+
+    .dashboard-header h3 {
+        font-size: 0.85rem !important;
+        margin: 0 !important;
+    }
+
+    /* Ultra tight user info */
+    #user-energy-text {
+        font-size: 0.65rem !important;
+    }
+
+    #community-user div[style*="font-size:0.75rem"] {
+        font-size: 0.6rem !important;
+    }
+
+    #user-display-alias {
+        font-size: 0.8rem !important;
+    }
+
+    /* 6. PROFILE MODAL - FULLSCREEN MOBILE IMPROVEMENTS */
+    #user-profile-modal {
+        padding: 0 !important;
+    }
+
+    #user-profile-modal .glass-panel {
+        width: 100% !important;
+        height: 100% !important;
+        max-width: none !important;
+        max-height: none !important;
+        border-radius: 0 !important;
+        border: none !important;
+    }
+
+    #prof-header {
+        padding: 40px 15px 25px 15px !important;
+        /* More top padding for status bar */
+    }
+
+    #prof-alias {
+        font-size: 1.3rem !important;
+    }
+
+    #prof-date {
+        font-size: 0.7rem !important;
+    }
+
+    #prof-avatar {
+        width: 75px !important;
+        height: 75px !important;
+        font-size: 1.4rem !important;
+        margin-bottom: 12px !important;
+    }
+
+    /* Activity history list tighting */
+    #user-profile-modal div[style*="overflow-y:auto"] {
+        padding: 15px !important;
+    }
+
+    #user-profile-modal h4 {
+        font-size: 0.85rem !important;
+        margin-bottom: 15px !important;
+    }
+
+    /* Ensure close button is accessible but not huge */
+    #user-profile-modal button[onclick="closeUserProfile()"] {
+        top: env(safe-area-inset-top, 10px) !important;
+        right: 15px !important;
+        font-size: 2rem !important;
+        color: #fff !important;
+        text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    #prof-status-text {
+        font-size: 0.85rem !important;
+        margin: 5px 0 !important;
+    }
+
+    #prof-status-box {
+        padding: 5px 10px !important;
+    }
+}
+@media (max-width: 768px) { html { font-size: 14px !important; } body { line-height: 1.3; } }
+
+@media (max-width: 768px) { #prof-header { padding: 25px 15px 10px 15px !important; } #prof-alias { font-size: 1.1rem !important; } #prof-avatar { width: 55px !important; height: 55px !important; margin-bottom: 6px !important; } #prof-date { font-size: 0.65rem !important; } }
+
+@media (max-width: 768px) { .topic-item button { padding: 1px 5px !important; font-size: 0.6rem !important; } input, textarea, select { padding: 6px !important; font-size: 0.85rem !important; min-height: 32px !important; } .modal-content { padding: 10px !important; } }
+
+@media (max-width: 768px) { .x-header-bar { height: auto !important; min-height: 40px !important; padding-top: max(35px, env(safe-area-inset-top)) !important; padding-bottom: 10px !important; background: #0f172a !important; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 9999 !important; } }
+
+@media (max-width: 768px) { .x-search-area { position: fixed !important; top: calc(50px + env(safe-area-inset-top)) !important; left: 0 !important; width: 100% !important; z-index: 9998 !important; background: #0f172a !important; padding: 5px 10px 10px 10px !important; box-sizing: border-box !important; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-bottom: 1px solid rgba(255,255,255,0.05); } #xview-reportes { padding-top: calc(140px + env(safe-area-inset-top)) !important; } }
+/* STATS PADDING */
+@media (max-width: 768px) { #xview-stats { padding-top: calc(30px + env(safe-area-inset-top)) !important; } }
+/* REPORTES PADDING */
+@media (max-width: 768px) { #xview-reportes { padding-top: calc(100px + env(safe-area-inset-top)) !important; } }

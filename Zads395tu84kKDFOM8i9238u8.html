@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Mapa Uruguay</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background-color: #0d1117;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="login-screen">
+        <div class="login-box">
+            <h2>🔒 Acceso Restringido</h2>
+            <input type="password" id="login-pass" class="login-input" placeholder="Contraseña de Admin"
+                onkeyup="if(event.key==='Enter') checkLogin()">
+            <button class="login-btn" onclick="checkLogin()">Ingresar</button>
+            <p id="login-error" class="error-msg">Contraseña incorrecta</p>
+        </div>
+    </div>
+
+    <div class="admin-container" id="admin-container" style="display:none; flex-direction:column;">
+        <div class="admin-header" style="justify-content:space-between; display:flex; align-items:center; width:100%;">
+            <h1>Panel de Control</h1>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <button onclick="downloadBackup()" class="save-btn"
+                    style="background:#238636; font-size:0.85rem; padding:6px 12px; display:flex; gap:5px; align-items:center;">
+                    ⬇️ Descargar Datos
+                </button>
+                <button onclick="triggerImport()" class="save-btn"
+                    style="background:#1f6feb; font-size:0.85rem; padding:6px 12px; display:flex; gap:5px; align-items:center;">
+                    ⬆️ Subir Datos
+                </button>
+                <input type="file" id="import-file" accept=".json" style="display:none" onchange="importBackup(this)">
+
+                <div id="visits-stat"
+                    style="display:flex; align-items:center; gap:5px; margin-right:15px; padding:5px 12px; background:rgba(255,165,2,0.15); border:1px solid #ffa502; border-radius:20px;">
+                    <span>👀</span>
+                    <strong id="visits-count" style="color:#ffa502;">0</strong>
+                </div>
+
+                <div id="save-status"
+                    style="display:flex; align-items:center; gap:8px; padding:5px 12px; background:rgba(0,0,0,0.3); border-radius:20px; border:1px solid #444;">
+                    <span id="status-icon" style="font-size:1.2em;">☁️</span>
+                    <span id="status-text" style="font-size:0.9em; color:#aaa;">Sincronizado</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN: GESTIÓN DE INCIDENTES (MAPA) -->
+        <div class="glass-panel"
+            style="width:100%; border:1px solid rgba(255,255,255,0.1); border-radius:16px; padding:20px; background: #141625; box-sizing:border-box;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h2 style="color:#fff; margin:0;">📍 Gestión de Homicidios (Mapa)</h2>
+                <div style="font-size:0.8rem; color:#aaa;">Puntos creados: <strong id="incidents-count"
+                        style="color:#fff;">0</strong></div>
+            </div>
+
+            <div style="display:flex; gap:20px; margin-top:20px; flex-wrap:wrap;">
+                <!-- Formulario -->
+                <div style="flex:1; min-width:300px;">
+                    <label style="color:#aaa; font-size:0.9rem;">Departamento</label>
+                    <select id="inc-dept"
+                        style="width:100%; padding:8px; margin-bottom:10px; border-radius:4px; border:1px solid #444; background:#0d1117; color:#fff;">
+                        <option value="Montevideo">Montevideo</option>
+                        <option value="Canelones">Canelones</option>
+                        <option value="Maldonado">Maldonado</option>
+                        <option value="Rocha">Rocha</option>
+                        <option value="Artigas">Artigas</option>
+                        <option value="Cerro Largo">Cerro Largo</option>
+                        <option value="Colonia">Colonia</option>
+                        <option value="Durazno">Durazno</option>
+                        <option value="Flores">Flores</option>
+                        <option value="Florida">Florida</option>
+                        <option value="Lavalleja">Lavalleja</option>
+                        <option value="Paysandú">Paysandú</option>
+                        <option value="Río Negro">Río Negro</option>
+                        <option value="Rivera">Rivera</option>
+                        <option value="Salto">Salto</option>
+                        <option value="San José">San José</option>
+                        <option value="Soriano">Soriano</option>
+                        <option value="Tacuarembó">Tacuarembó</option>
+                        <option value="Treinta y Tres">Treinta y Tres</option>
+                    </select>
+
+                    <label style="color:#aaa; font-size:0.9rem;">Dirección / Calle y Esquina</label>
+                    <div style="display:flex; gap:5px; margin-bottom:10px;">
+                        <input type="text" id="inc-address" placeholder="Ej: 18 de Julio y Ejido, Montevideo"
+                            style="flex:1; padding:8px; border-radius:4px; border:1px solid #444; background:#0d1117; color:#fff;">
+                        <button onclick="searchAddress()" style="background:#2f81f7; color:#fff; padding:0 15px;">🔍
+                            Buscar</button>
+                    </div>
+
+                    <label style="color:#aaa; font-size:0.9rem;">Fecha</label>
+                    <input type="date" id="inc-date"
+                        style="width:100%; padding:8px; margin-bottom:10px; border-radius:4px; border:1px solid #444; background:#0d1117; color:#fff;">
+
+                    <label style="color:#aaa; font-size:0.9rem;">Descripción (Opcional)</label>
+                    <textarea id="inc-desc" rows="2" placeholder="Detalles breves..."
+                        style="width:100%; padding:8px; margin-bottom:10px; border-radius:4px; border:1px solid #444; background:#0d1117; color:#fff;"></textarea>
+
+                    <label style="color:#aaa; font-size:0.9rem;">Fuente (URL Noticia)</label>
+                    <input type="url" id="inc-source" placeholder="https://..."
+                        style="width:100%; padding:8px; margin-bottom:10px; border-radius:4px; border:1px solid #444; background:#0d1117; color:#fff;">
+
+                    <div style="display:flex; gap:10px; margin-bottom:15px;">
+                        <div style="flex:1;">
+                            <label style="color:#aaa; font-size:0.8rem;">Sexo</label>
+                            <select id="inc-gender"
+                                style="width:100%; padding:8px; border-radius:4px; border:1px solid #444; background:#0d1117; color:#fff;">
+                                <option value="Hombre">Hombre</option>
+                                <option value="Mujer">Mujer</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+                        <div style="flex:1;">
+                            <label style="color:#aaa; font-size:0.8rem;">Edad</label>
+                            <input type="number" id="inc-age" placeholder="Ej: 30"
+                                style="width:100%; padding:8px; border-radius:4px; border:1px solid #444; background:#0d1117; color:#fff;">
+                        </div>
+                        <div style="flex:1;">
+                            <label style="color:#aaa; font-size:0.8rem;">Arma</label>
+                            <select id="inc-weapon"
+                                style="width:100%; padding:8px; border-radius:4px; border:1px solid #444; background:#0d1117; color:#fff;">
+                                <option value="Arma de Fuego">Arma de Fuego</option>
+                                <option value="Arma Blanca">Arma Blanca</option>
+                                <option value="Objeto Contundente">Objeto Contundente</option>
+                                <option value="Otras">Otras</option>
+                                <option value="Desconocido">Desconocido</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button onclick="addIncident()" class="save-btn" style="width:100%;">📌 Confirmar y Publicar
+                        Punto</button>
+
+                    <div style="margin-top:20px; border-top:1px solid #333; padding-top:10px;">
+                        <h4 style="color:#fff; margin:0 0 10px 0;">Últimos Puntos Agregados</h4>
+                        <ul id="incidents-list"
+                            style="list-style:none; padding:0; max-height:200px; overflow-y:auto; font-size:0.9rem;">
+                            <!-- Lista JS -->
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Mapa Admin -->
+                <div
+                    style="flex:1; min-width:350px; height:400px; border-radius:12px; overflow:hidden; border:1px solid #444;">
+                    <div id="admin-map" style="width:100%; height:100%; background:#121212;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- MODAL DE BARRIOS -->
+    <div id="barrios-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content">
+            <h2 id="modal-title">Editando: Montevideo</h2>
+
+            <div id="modal-list" class="barrios-list">
+                <!-- Lista de barrios generada por JS -->
+            </div>
+
+            <div class="add-barrio-form">
+                <input type="text" id="new-barrio-name" placeholder="Nombre del barrio (ej: Centro)">
+                <input type="number" id="new-barrio-count" value="1" min="1" style="width:60px;">
+                <button class="save-btn" onclick="addBarrio()">+ Agregar</button>
+            </div>
+
+            <div class="modal-actions">
+                <button class="confirm-btn" style="background:#444;" onclick="closeModal()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet CSS for Admin Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <style>
+        /* FIX DEFINITIVO PARA LÍNEAS DE MAPA */
+        .leaflet-container {
+            background-color: #000 !important;
+            /* Negro absoluto de fondo */
+        }
+
+        /* Ocultar bordes no deseados */
+        .leaflet-tile {
+            border: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        /* Forzar fondo oscuro en tiles que cargan lento */
+        .leaflet-layer,
+        .leaflet-pane {
+            background: transparent;
+            /* Dejar ver el fondo negro del container */
+        }
+
+        /* Asegurar que la atribución legal sea visible */
+        .leaflet-control-attribution {
+            background: rgba(0, 0, 0, 0.5) !important;
+            color: #aaa !important;
+            font-size: 0.7rem !important;
+            border-radius: 4px;
+            padding: 0 5px;
+        }
+
+        .leaflet-control-attribution a {
+            color: #fff !important;
+            text-decoration: none;
+        }
+    </style>
+    <script src="Zads395tu84kKDFOM8i9238u8.js?v=11"></script>
+</body>
+
+</html>

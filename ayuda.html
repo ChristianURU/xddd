@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centro de Ayuda - Homicidios Uruguay</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=110">
+    <style>
+        /* Specific Help Center Styles */
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            font-family: 'Outfit', sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        .help-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 60px 20px;
+            background: radial-gradient(circle at center, rgba(255, 77, 77, 0.1) 0%, transparent 70%);
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #fff, #a0a0b0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+
+        /* Search Bar Simulation */
+        .search-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 20px;
+            border-radius: 50px;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus-within {
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 15px rgba(255, 77, 77, 0.2);
+            border-color: var(--accent);
+        }
+
+        .search-box input {
+            background: transparent;
+            border: none;
+            color: white;
+            width: 100%;
+            font-size: 1rem;
+            font-family: inherit;
+            outline: none;
+        }
+
+        /* Categories Grid */
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+
+        .category-card {
+            background: var(--card-bg);
+            /* Using existing/fallback */
+            background-color: rgba(20, 20, 35, 0.6);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 25px;
+            transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+            background-color: rgba(30, 30, 50, 0.8);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .category-icon {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .category-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .category-desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* FAQ Accordion */
+        .faq-section {
+            margin-top: 60px;
+        }
+
+        .faq-title {
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            border-left: 4px solid var(--accent);
+            padding-left: 15px;
+        }
+
+        .accordion-item {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 10px;
+        }
+
+        .accordion-header {
+            width: 100%;
+            background: none;
+            border: none;
+            text-align: left;
+            padding: 15px 0;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #e2e8f0;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: inherit;
+        }
+
+        .accordion-header:hover {
+            color: var(--accent);
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            padding-right: 20px;
+        }
+
+        .accordion-content.active {
+            max-height: 500px;
+            /* Arbitrary large height */
+            padding-bottom: 20px;
+        }
+
+        .icon-plus {
+            transition: transform 0.3s;
+        }
+
+        .active .icon-plus {
+            transform: rotate(45deg);
+        }
+
+        /* Back Button */
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            z-index: 100;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent);
+        }
+
+        /* Energy Highlight Table */
+        .energy-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .energy-table th,
+        .energy-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .energy-table th {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+        }
+
+        .plus {
+            color: #4ade80;
+            font-weight: bold;
+        }
+
+        .minus {
+            color: #ef4444;
+            font-weight: bold;
+        }
+
+        .feature-tag {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            color: #cbd5e1;
+        }
+    </style>
+</head>
+
+<body>
+
+    <a href="https://homicidiosuy.com/" class="back-btn">
+        <span>←</span> Volver al Mapa
+    </a>
+
+    <div class="help-container">
+
+        <!-- Hero -->
+        <div class="hero">
+            <h1>Centro de Ayuda</h1>
+            <p>Descubre cómo participar en la comunidad de seguridad colaborativa más grande de Uruguay.</p>
+
+            <div class="search-box">
+                <span>🔍</span>
+                <input type="text" placeholder="Buscar ayuda sobre mapas, alertas, energía..." id="search-input">
+            </div>
+        </div>
+
+        <!-- Categories -->
+        <div class="categories-grid">
+            <div class="category-card" onclick="scrollToSection('energia')">
+                <span class="category-icon">⚡</span>
+                <div class="category-title">Sistema de Energía</div>
+                <div class="category-desc">Aprende cómo ganar puntos, gastarlos y mantener tu estatus en la comunidad.
+                </div>
+            </div>
+
+            <div class="category-card" onclick="scrollToSection('mapa')">
+                <span class="category-icon">🗺️</span>
+                <div class="category-title">Uso del Mapa</div>
+                <div class="category-desc">Guía de iconos, filtros y cómo navegar por las alertas en tiempo real.</div>
+            </div>
+
+            <div class="category-card" onclick="scrollToSection('perfil')">
+                <span class="category-icon">👤</span>
+                <div class="category-title">Mi Perfil</div>
+                <div class="category-desc">Personaliza tu identidad, foto y redes sociales.</div>
+            </div>
+
+            <div class="category-card" onclick="scrollToSection('publicar')">
+                <span class="category-icon">📢</span>
+                <div class="category-title">Crear Alertas</div>
+                <div class="category-desc">Reglas para publicar denuncias, alertas de seguridad y reportes ambientales.
+                </div>
+            </div>
+
+            <div class="category-card" onclick="scrollToSection('seguridad')">
+                <span class="category-icon">🛡️</span>
+                <div class="category-title">Verificación</div>
+                <div class="category-desc">Cómo la comunidad valida la información para mantener el mapa confiable.
+                </div>
+            </div>
+
+            <div class="category-card" onclick="scrollToSection('moderacion')">
+                <span class="category-icon">👮</span>
+                <div class="category-title">Moderación</div>
+                <div class="category-desc">Requisitos para colaborar en la gestión y cuidado de la comunidad.</div>
+            </div>
+        </div>
+
+        <!-- Detailed Content -->
+
+        <div id="energia" class="faq-section">
+            <div class="faq-title">⚡ Sistema de Energía (Karma)</div>
+            <p style="color:var(--text-secondary);">
+                La energía es la moneda de la comunidad. Sirve para medir tu reputación y te permite realizar acciones
+                importantes como
+                <b>Confirmar la Vigencia</b> de una alerta.
+            </p>
+
+            <table class="energy-table">
+                <thead>
+                    <tr>
+                        <th>Acción</th>
+                        <th>Costo / Recompensa</th>
+                        <th>Detalle</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>🎁 Bono Diario</td>
+                        <td class="plus">+3 Puntos</td>
+                        <td>Entra cada 24 horas para recibirlo automáticamente.</td>
+                    </tr>
+                    <tr>
+                        <td>📝 Publicar Tema</td>
+                        <td class="plus">+1 / +30 Puntos</td>
+                        <td>+1 Básico. <b style="color:#ffd700;">+30</b> si incluyes Foto o Enlace en Alertas.</td>
+                    </tr>
+                    <tr>
+                        <td>💬 Responder</td>
+                        <td class="plus">+0.1 Puntos</td>
+                        <td>Por cada comentario en temas de otros usuarios.</td>
+                    </tr>
+                    <tr>
+                        <td>👍 Reaccionar</td>
+                        <td class="plus">+1 Punto</td>
+                        <td>Solo la primera vez. Si quitas tu reacción, pierdes el punto.</td>
+                    </tr>
+                    <tr>
+                        <td>✅ Confirmar Vigencia</td>
+                        <td class="minus">-50 Puntos</td>
+                        <td>Extiende la duración de una alerta por 1 hora. ¡Úsalo sabiamente!</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="perfil" class="faq-section">
+            <div class="faq-title">👤 Personalizando tu Perfil</div>
+            <p style="color:var(--text-secondary);">
+                Tu perfil es tu carta de presentación en la comunidad. Aquí puedes mostrar tu nivel, tus logros y
+                conectar tus redes sociales.
+            </p>
+
+            <div class="accordion-item">
+                <button class="accordion-header">
+                    ¿Cómo cambio mi Foto de Perfil?
+                    <span class="icon-plus">+</span>
+                </button>
+                <div class="accordion-content">
+                    La plataforma asigna una imagen por defecto, pero puedes cambiarla fácilmente.
+                    Simplemente <b>toca tu foto actual</b> en el panel de perfil para seleccionar una nueva desde tu
+                    galería o cámara.
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <button class="accordion-header">
+                    Editar Mensaje y Redes Sociales
+                    <span class="icon-plus">+</span>
+                </button>
+                <div class="accordion-content">
+                    Ve al menú "Comunidad" > "Perfil". Allí encontrarás el botón de <b>Editar (Lápiz)</b> junto a tu
+                    nombre.
+                    Podrás escribir una breve biografía y vincular tu cuenta de X (Twitter) para que otros seguidores te
+                    encuentren.
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <button class="accordion-header">
+                    Compartir mi Perfil
+                    <span class="icon-plus">+</span>
+                </button>
+                <div class="accordion-content">
+                    Cada usuario tiene un enlace único (ej. <code>homicidiosuy.com/?u=TuAlias</code>).
+                    Puedes copiarlo desde tu panel de perfil para mostrar tu historial de aportes y nivel de energía a
+                    tus amigos.
+                </div>
+            </div>
+        </div>
+
+        <div id="publicar" class="faq-section">
+            <div class="faq-title">📢 Crear Alertas y Denuncias</div>
+            <p style="color:var(--text-secondary);">
+                La calidad del mapa depende de la veracidad de la información. Por eso premiamos las alertas que
+                incluyen evidencia.
+            </p>
+
+            <div
+                style="background:rgba(74, 222, 128, 0.1); border-left:4px solid #4ade80; padding:15px; border-radius:4px; margin-bottom:20px;">
+                <h4 style="margin:0 0 10px 0; color:#4ade80;">📷 Sistema de Evidencia</h4>
+                <p style="margin:0; font-size:0.95rem; color:#ddd;">
+                    Si al publicar una <b>Alerta</b> o <b>Denuncia</b> incluyes una <b>Foto</b> o un <b>Enlace a una
+                        Fuente</b> (noticia/tweet oficial), obtendrás beneficios exclusivos:
+                </p>
+                <ul style="margin-top:10px; padding-left:20px; color:#cbd5e1;">
+                    <li><b>Mayor Duración:</b> Tu alerta será visible por <b>12 Horas</b> (vs 8 horas sin evidencia).
+                    </li>
+                    <li><b>Más Energía:</b> Ganarás <b>+30 Puntos</b> inmediatamente (vs +1 punto base).</li>
+                </ul>
+            </div>
+
+            <div class="accordion-item">
+                <button class="accordion-header">
+                    ¿Qué se considera una Fuente Válida?
+                    <span class="icon-plus">+</span>
+                </button>
+                <div class="accordion-content">
+                    Enlaces a portales de noticias reconocidos (Subrayado, El País, Montevideo Portal) o cuentas
+                    oficiales del Ministerio del Interior.
+                    No uses enlaces sospechosos o blogs sin verificar.
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <button class="accordion-header">
+                    Gestión de Residuos ♻️
+                    <span class="icon-plus">+</span>
+                </button>
+                <div class="accordion-content">
+                    Para reportar basurales o problemas de limpieza, la foto es <b>obligatoria</b>.
+                    Estas alertas duran 24 horas por defecto para dar tiempo a las autoridades o vecinos a reaccionar.
+                </div>
+            </div>
+        </div>
+
+        <div id="moderacion" class="faq-section">
+            <div class="faq-title">👮 Moderación y Rangos</div>
+            <p style="color:var(--text-secondary);">
+                Los moderadores son usuarios de confianza encargados de aprobar alertas, gestionar reportes y mantener
+                el orden.
+                Este rol se otorga por mérito y compromiso.
+            </p>
+
+            <div
+                style="background:rgba(255,165,0,0.1); border-left:4px solid #FFA500; padding:15px; border-radius:4px; margin-bottom:20px;">
+                <h4 style="margin:0 0 10px 0; color:#FFA500;">¿Cómo puedo ser Moderador?</h4>
+                <p style="margin:0; font-size:0.95rem; color:#ddd;">
+                    No hay un botón para solicitarlo. Buscamos activamente a usuarios que demuestren <b>liderazgo
+                        positivo</b>.
+                </p>
+            </div>
+
+            <ul style="color:var(--text-secondary); padding-left:20px; line-height:1.8;">
+                <li><b>📈 Actividad Constante:</b> Publicar alertas veraces y detalladas regularmente.</li>
+                <li><b>🤝 Colaboración:</b> Ayudar a nuevos usuarios, responder dudas y confirmar vigencias.</li>
+                <li><b>📢 Presencia Social:</b> Ser activo en nuestras redes (X, Instagram) compartiendo y comentando.
+                </li>
+                <li><b>🧠 Criterio:</b> Reportar contenido falso o inapropiado correctamente.</li>
+            </ul>
+
+            <p style="color:var(--text-secondary); margin-top:20px; font-size:0.9rem;">
+                Si destacas en estas áreas, nuestro equipo te contactará directamente.
+            </p>
+        </div>
+
+        <div id="faq-list" class="faq-section" style="margin-top: 40px;">
+            <div class="faq-title">Preguntas Frecuentes</div>
+
+            <div class="accordion-item">
+                <button class="accordion-header">
+                    ¿Qué pasa si mi energía llega a 0?
+                    <span class="icon-plus">+</span>
+                </button>
+                <div class="accordion-content">
+                    No te preocupes. Aún podrás ver el mapa y leer alertas. Sin embargo, no podrás realizar acciones que
+                    consuman energía, como Confirmar Vigencia.
+                    ¡Participa comentando o reaccionando para recargar tu barra!
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <button class="accordion-header">
+                    ¿Cómo funciona el "Confirmar Vigencia"?
+                    <span class="icon-plus">+</span>
+                </button>
+                <div class="accordion-content">
+                    Las alertas tienen un tiempo de vida base (24 horas). Si una alerta sigue siendo relevante (ej.
+                    "Operativo policial en curso"),
+                    los usuarios pueden gastar 50 puntos de energía para darle <b>+1 hora extra</b> de vida.
+                    Esto ayuda a que lo importante se mantenga visible más tiempo.
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <button class="accordion-header">
+                    ¿Por qué no puedo cambiar mi reacción?
+                    <span class="icon-plus">+</span>
+                </button>
+                <div class="accordion-content">
+                    Para evitar manipulaciones del sistema de puntos (farming), las reacciones son <b>únicas y
+                        definitivas</b>.
+                    Una vez que reaccionas a un tema, no puedes cambiarla ni quitarla. Piensa bien antes de votar.
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <button class="accordion-header">
+                    ¿Qué son las categorías de iconos del mapa?
+                    <span class="icon-plus">+</span>
+                </button>
+                <div class="accordion-content">
+                    <ul style="padding-left: 20px;">
+                        <li>⚠️ <b>Alerta (Rojo):</b> Eventos de seguridad en curso o recientes.</li>
+                        <li>📢 <b>Denuncia (Azul):</b> Reportes ciudadanos generales.</li>
+                        <li>♻️ <b>Residuos (Verde):</b> Basurales o problemas ambientales (requiere foto obligatoria).
+                        </li>
+                        <li>❓ <b>Consulta (Gris):</b> Preguntas a la comunidad.</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+        <div
+            style="margin-top: 60px; padding: 40px; background: rgba(255,255,255,0.05); border-radius: 16px; text-align: center;">
+            <h3 style="margin-top: 0;">¿Aún tienes dudas?</h3>
+            <p style="color:var(--text-secondary); margin-bottom: 20px;">Únete a la conversación en el mapa y pregunta a
+                la comunidad.</p>
+            <a href="https://homicidiosuy.com/"
+                style="background: var(--accent); color: white; padding: 10px 25px; border-radius: 50px; font-weight: bold; display: inline-block;">Ir
+                al Mapa</a>
+        </div>
+
+        <footer
+            style="margin-top: 60px; text-align: center; color: var(--text-secondary); padding-bottom: 40px; font-size: 0.8rem;">
+            <p>© 2026 Homicidios Uruguay / WebCrimen Community.</p>
+            <p>Hecho con ❤️ para la seguridad de todos.</p>
+        </footer>
+
+    </div>
+
+    <script>
+        // Accordion Logic
+        document.querySelectorAll('.accordion-header').forEach(button => {
+            button.addEventListener('click', () => {
+                const content = button.nextElementSibling;
+                const isActive = content.classList.contains('active');
+
+                // Close all others (optional, keeps it clean)
+                document.querySelectorAll('.accordion-content').forEach(c => {
+                    c.classList.remove('active');
+                    c.previousElementSibling.classList.remove('active');
+                });
+
+                if (!isActive) {
+                    content.classList.add('active');
+                    button.classList.add('active');
+                }
+            });
+        });
+
+        // Scroll Logic
+        function scrollToSection(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                // If it's a category without ID, just scroll to FAQ for now
+                document.getElementById('faq-list').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // Search Logic (Simple Filter)
+        const searchInput = document.getElementById('search-input');
+        searchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const items = document.querySelectorAll('.accordion-item, .energy-table tr');
+
+            // Very basic highlight implementation would go here, 
+            // but for now let's just log search intent.
+            // A full implementation would filter/hide sections.
+        });
+    </script>
+</body>
+
+</html>

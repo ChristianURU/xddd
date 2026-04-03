@@ -1,0 +1,148 @@
+/* ====== COMPACT CATEGORY FILTER (GRID 2 COLUMNAS) ====== */
+
+/* Contenedor del Widget */
+.compact-widget {
+    padding: 10px 12px !important;
+}
+
+/* Título FILTROS */
+.widget-header-compact {
+    font-size: 0.75rem;
+    color: #94a3b8; /* Gris (Modo Oscuro) */
+    margin-bottom: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Fix Título TEMA CLARO */
+body.light-theme .widget-header-compact {
+    color: #475569; /* Gris Oscuro (Modo Claro) */
+}
+
+/* Grid de botones: 2 Columnas Estrictas */
+.category-filter-container {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important; /* 2 Columnas iguales */
+    gap: 6px !important;
+}
+
+/* Estilo Botón (Rectangular Compacto) */
+.category-filter-btn {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #cbd5e1;
+    
+    /* Layout Horizontal: Icono Izq - Texto Der */
+    display: flex;
+    flex-direction: row; 
+    align-items: center;
+    justify-content: flex-start; /* Alineado a la izquierda */
+    gap: 8px;
+    
+    padding: 6px 10px;
+    border-radius: 6px; /* Bordes ligeramente redondeados (No píldora) */
+    cursor: pointer;
+    
+    font-size: 0.75rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+}
+
+/* Ajustes Botones TEMA CLARO */
+body.light-theme .category-filter-btn {
+    border-color: #cbd5e1;
+    color: #64748b;
+    background: transparent;
+}
+
+.category-filter-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+body.light-theme .category-filter-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: #94a3b8;
+    color: #334155;
+}
+
+/* === ESTADOS ACTIVOS (Colores Específicos) === */
+
+/* Homicidios - Rojo */
+#filter-homicidios.active {
+    background: rgba(244, 63, 94, 0.15);
+    border-color: #f43f5e;
+    color: #fda4af;
+    box-shadow: 0 0 8px rgba(244, 63, 94, 0.2);
+}
+body.light-theme #filter-homicidios.active {
+    background: rgba(244, 63, 94, 0.1);
+    border-color: #e11d48;
+    color: #e11d48;
+}
+
+/* Alertas - Naranja */
+#filter-alerta.active {
+    background: rgba(249, 115, 22, 0.15);
+    border-color: #f97316;
+    color: #fdba74;
+    box-shadow: 0 0 8px rgba(249, 115, 22, 0.2);
+}
+body.light-theme #filter-alerta.active {
+    background: rgba(249, 115, 22, 0.1);
+    border-color: #ea580c;
+    color: #ea580c;
+}
+
+/* Denuncias - Azul */
+#filter-denuncia.active {
+    background: rgba(14, 165, 233, 0.15);
+    border-color: #0ea5e9;
+    color: #7dd3fc;
+    box-shadow: 0 0 8px rgba(14, 165, 233, 0.2);
+}
+body.light-theme #filter-denuncia.active {
+    background: rgba(14, 165, 233, 0.1);
+    border-color: #0284c7;
+    color: #0284c7;
+}
+
+/* Residuos - Verde */
+#filter-residuos.active {
+    background: rgba(16, 185, 129, 0.15);
+    border-color: #10b981;
+    color: #6ee7b7;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.2);
+}
+body.light-theme #filter-residuos.active {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: #15803d;
+    color: #15803d;
+}
+
+/* Consultas - Violeta */
+#filter-consulta.active {
+    background: rgba(139, 92, 246, 0.15);
+    border-color: #8b5cf6;
+    color: #c4b5fd;
+    box-shadow: 0 0 8px rgba(139, 92, 246, 0.2);
+}
+body.light-theme #filter-consulta.active {
+    background: rgba(139, 92, 246, 0.1);
+    border-color: #7c3aed;
+    color: #7c3aed;
+}
+
+/* Ajuste de iconos */
+.category-filter-btn span {
+    font-size: 1.1em;
+}

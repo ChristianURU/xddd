@@ -1,0 +1,26 @@
+/* Donation Button Animations */
+@keyframes shine {
+    0% {
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    }
+
+    50% {
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 0 30px rgba(255, 215, 0, 0.4);
+    }
+
+    100% {
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+}
